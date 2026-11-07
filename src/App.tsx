@@ -29,6 +29,7 @@ export const App: React.FC = () => {
 
   const peerManagerRef = useRef<PeerNetworkManager | null>(null);
   const prevTurnIndexRef = useRef<number>(-1);
+  const [urlRoomCode, setUrlRoomCode] = useState<string>('');
 
   // Initialize network manager
   useEffect(() => {
@@ -60,9 +61,17 @@ export const App: React.FC = () => {
     const params = new URLSearchParams(window.location.search);
     const roomFromUrl = params.get('room');
     if (roomFromUrl) {
-      // Room prefilled if user lands on link
+      setUrlRoomCode(roomFromUrl.toUpperCase().trim());
     }
   }, []);
+
+  const handleCancelJoin = () => {
+    if (peerManagerRef.current) {
+      peerManagerRef.current.disconnect();
+    }
+    setLobbyStatus('initial');
+    setGameState(null);
+  };
 
   // 1. Host Game
   const handleCreateRoom = async (hostName: string) => {
@@ -260,7 +269,7 @@ export const App: React.FC = () => {
       <>
         <GameLobby
           status={lobbyStatus}
-          roomCode={gameState?.roomCode || peerManagerRef.current?.roomCode || ''}
+          roomCode={gameState?.roomCode || peerManagerRef.current?.roomCode || urlRoomCode || ''}
           players={gameState?.players || []}
           myPlayerId={peerManagerRef.current?.myPlayerId || ''}
           isHost={peerManagerRef.current?.isHost || false}
@@ -270,6 +279,8 @@ export const App: React.FC = () => {
           onOpenRules={() => setRulesOpen(true)}
           onAddBot={handleAddBot}
           onStartSoloBot={handleStartSoloBot}
+          onCancelJoin={handleCancelJoin}
+          initialRoomCode={urlRoomCode}
         />
         {rulesOpen && <RuleBookModal onClose={() => setRulesOpen(false)} />}
       </>

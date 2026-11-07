@@ -16,15 +16,29 @@ function makeId(prefix = 'p'): string {
   return `${prefix}_${Math.random().toString(36).substring(2, 8)}`;
 }
 
-// Google public STUN servers for reliable WebRTC candidate exchange
+// Google STUN + OpenRelay TURN servers for robust peer-to-peer WebRTC connections
+// Works reliably across mobile cellular data (LTE/5G), firewalls, and symmetric NAT
 const PEER_CONFIG = {
   config: {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
-      { urls: 'stun:stun3.l.google.com:19302' },
-      { urls: 'stun:stun4.l.google.com:19302' },
+      { urls: 'stun:openrelay.metered.ca:80' },
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject',
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject',
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+        username: 'openrelayproject',
+        credential: 'openrelayproject',
+      },
     ],
   },
 };
@@ -77,7 +91,7 @@ export class PeerNetworkManager {
     // Set up local broadcast channel for instant local tab sync
     this.setupLocalChannel();
 
-    const hostPeerId = `bizdeal_${this.roomCode}_host`;
+    const hostPeerId = `dealbreaker-${this.roomCode.toLowerCase()}-host`;
 
     return new Promise((resolve) => {
       // Initialize lobby state immediately
@@ -115,12 +129,30 @@ export class PeerNetworkManager {
 
       this.notifyState();
 
+      let isDone = false;
+      const done = () => {
+        if (!isDone) {
+          isDone = true;
+          resolve(this.roomCode);
+        }
+      };
+
+      // Safety timeout: don't block host UI if PeerJS broker is slow
+      const safetyTimeout = setTimeout(() => {
+        done();
+      }, 2500);
+
       // Connect to PeerJS for cross-device connections
       try {
+        if (this.peer) {
+          try { this.peer.destroy(); } catch (_) {}
+        }
         this.peer = new Peer(hostPeerId, PEER_CONFIG);
 
         this.peer.on('open', () => {
           console.log(`[Host] PeerJS registered as ${hostPeerId}`);
+          clearTimeout(safetyTimeout);
+          done();
         });
 
         this.peer.on('connection', (conn) => {
@@ -129,12 +161,14 @@ export class PeerNetworkManager {
 
         this.peer.on('error', (err) => {
           console.warn('[Host] PeerJS signaling notice:', err.type, err.message);
+          clearTimeout(safetyTimeout);
+          done();
         });
       } catch (e) {
         console.warn('[Host] PeerJS init error:', e);
+        clearTimeout(safetyTimeout);
+        done();
       }
-
-      resolve(this.roomCode);
     });
   }
 
@@ -154,19 +188,65 @@ export class PeerNetworkManager {
       msg: { type: 'JOIN', playerName: this.myPlayerName },
     });
 
-    const hostPeerId = `bizdeal_${this.roomCode}_host`;
+    const hostPeerId = `dealbreaker-${this.roomCode.toLowerCase()}-host`;
 
-    return new Promise((resolve) => {
-      try {
-        // Let PeerJS generate unique ID for client to avoid collisions
-        this.peer = new Peer(PEER_CONFIG);
+    return new Promise((resolve, reject) => {
+      let isResolved = false;
+      let attempts = 0;
+      const MAX_ATTEMPTS = 5;
+      let retryTimer: ReturnType<typeof setTimeout> | null = null;
+      let overallTimeoutTimer: ReturnType<typeof setTimeout> | null = null;
 
-        this.peer.on('open', () => {
-          console.log(`[Client] PeerJS opened. Connecting to host ${hostPeerId}...`);
-          const conn = this.peer!.connect(hostPeerId, {
+      const cleanup = () => {
+        if (retryTimer) clearTimeout(retryTimer);
+        if (overallTimeoutTimer) clearTimeout(overallTimeoutTimer);
+      };
+
+      const completeSuccess = () => {
+        if (!isResolved) {
+          isResolved = true;
+          cleanup();
+          resolve();
+        }
+      };
+
+      const failWithError = (msg: string) => {
+        if (!isResolved) {
+          isResolved = true;
+          cleanup();
+          reject(new Error(msg));
+        }
+      };
+
+      // If local channel already receives state, resolve
+      const origOnState = this.onStateUpdate;
+      this.onStateUpdate = (state) => {
+        origOnState?.(state);
+        if (state && state.players && state.players.length > 0) {
+          completeSuccess();
+        }
+      };
+
+      // Overall timeout after 12 seconds
+      overallTimeoutTimer = setTimeout(() => {
+        failWithError(
+          `Unable to connect to table ${this.roomCode}. Please ensure the host is online and check the room code.`
+        );
+      }, 12000);
+
+      const tryConnectToHost = () => {
+        if (isResolved || !this.peer || this.peer.destroyed) return;
+        attempts++;
+        console.log(`[Client] Connection attempt ${attempts}/${MAX_ATTEMPTS} to host ${hostPeerId}...`);
+
+        try {
+          if (this.hostConnection) {
+            try { this.hostConnection.close(); } catch (_) {}
+          }
+
+          const conn = this.peer.connect(hostPeerId, {
             reliable: true,
           });
-
           this.hostConnection = conn;
 
           conn.on('open', () => {
@@ -175,26 +255,91 @@ export class PeerNetworkManager {
               type: 'JOIN',
               playerName: this.myPlayerName,
             } as ClientMessage);
+
+            // Wait briefly for initial state or resolve
+            setTimeout(() => {
+              completeSuccess();
+            }, 600);
           });
 
           conn.on('data', (data: unknown) => {
             this.handleHostMessage(data as HostMessage);
+            completeSuccess();
           });
 
           conn.on('error', (err) => {
             console.warn('[Client] WebRTC connection notice:', err);
+            scheduleRetry();
           });
+
+          conn.on('close', () => {
+            console.log('[Client] WebRTC connection closed.');
+          });
+        } catch (err) {
+          console.warn('[Client] Connection attempt error:', err);
+          scheduleRetry();
+        }
+      };
+
+      const scheduleRetry = () => {
+        if (isResolved) return;
+        if (attempts < MAX_ATTEMPTS) {
+          if (retryTimer) clearTimeout(retryTimer);
+          retryTimer = setTimeout(() => {
+            tryConnectToHost();
+          }, 1500);
+        } else {
+          failWithError(
+            `Could not reach host for room ${this.roomCode}. Please verify the room code.`
+          );
+        }
+      };
+
+      try {
+        if (this.peer) {
+          try { this.peer.destroy(); } catch (_) {}
+        }
+        this.peer = new Peer(PEER_CONFIG);
+
+        this.peer.on('open', (id) => {
+          console.log(`[Client] PeerJS opened with ID ${id}. Connecting to host ${hostPeerId}...`);
+          tryConnectToHost();
         });
 
         this.peer.on('error', (err) => {
           console.warn('[Client] PeerJS error:', err.type, err.message);
+          if (err.type === 'peer-unavailable' || err.type === 'network' || err.type === 'server-error') {
+            scheduleRetry();
+          }
         });
       } catch (e) {
         console.warn('[Client] PeerJS init notice:', e);
+        failWithError(`WebRTC error: ${(e as Error).message}`);
       }
-
-      resolve();
     });
+  }
+
+  // Cleanly disconnect and release all WebRTC & channel resources
+  public disconnect() {
+    if (this.hostConnection) {
+      try { this.hostConnection.close(); } catch (_) {}
+      this.hostConnection = null;
+    }
+    for (const conn of this.clientConnections.values()) {
+      try { conn.close(); } catch (_) {}
+    }
+    this.clientConnections.clear();
+
+    if (this.peer) {
+      try { this.peer.destroy(); } catch (_) {}
+      this.peer = null;
+    }
+    if (this.localChannel) {
+      try { this.localChannel.close(); } catch (_) {}
+      this.localChannel = null;
+    }
+    this.currentState = null;
+    this.isHost = false;
   }
 
   // Local BroadcastChannel for instant multi-window sync on the same computer
@@ -202,7 +347,7 @@ export class PeerNetworkManager {
     if (typeof window === 'undefined' || typeof BroadcastChannel === 'undefined') return;
 
     try {
-      this.localChannel = new BroadcastChannel(`bizdeal_${this.roomCode}`);
+      this.localChannel = new BroadcastChannel(`dealbreaker_${this.roomCode}`);
 
       this.localChannel.onmessage = (event) => {
         const data = event.data;
@@ -258,12 +403,19 @@ export class PeerNetworkManager {
         if (connection === conn) {
           this.clientConnections.delete(pId);
           if (this.currentState) {
-            this.currentState = {
-              ...this.currentState,
-              players: this.currentState.players.map((p) =>
-                p.id === pId ? { ...p, isConnected: false } : p
-              ),
-            };
+            if (this.currentState.status === 'lobby') {
+              this.currentState = {
+                ...this.currentState,
+                players: this.currentState.players.filter((p) => p.id !== pId),
+              };
+            } else {
+              this.currentState = {
+                ...this.currentState,
+                players: this.currentState.players.map((p) =>
+                  p.id === pId ? { ...p, isConnected: false } : p
+                ),
+              };
+            }
             this.broadcastState();
           }
           break;

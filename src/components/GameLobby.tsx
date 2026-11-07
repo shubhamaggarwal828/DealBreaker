@@ -26,6 +26,8 @@ interface GameLobbyProps {
   onOpenRules: () => void;
   onAddBot?: () => void;
   onStartSoloBot?: (name: string, botCount: number) => void;
+  onCancelJoin?: () => void;
+  initialRoomCode?: string;
 }
 
 export const GameLobby: React.FC<GameLobbyProps> = ({
@@ -40,11 +42,19 @@ export const GameLobby: React.FC<GameLobbyProps> = ({
   onOpenRules,
   onAddBot,
   onStartSoloBot,
+  onCancelJoin,
+  initialRoomCode = '',
 }) => {
   const [name, setName] = useState('');
-  const [joinCode, setJoinCode] = useState('');
+  const [joinCode, setJoinCode] = useState(initialRoomCode);
   const [copied, setCopied] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  React.useEffect(() => {
+    if (initialRoomCode) {
+      setJoinCode(initialRoomCode.toUpperCase().trim());
+    }
+  }, [initialRoomCode]);
 
   const handleCopyLink = () => {
     const url = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
@@ -199,88 +209,118 @@ export const GameLobby: React.FC<GameLobbyProps> = ({
 
         {/* 2. LOBBY WAITING ROOM (Host / Joined) */}
         {(status === 'hosting' || status === 'joining') && (
-          <div className="space-y-6">
-            {/* Room Code Card */}
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center">
-              <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">
-                Room Invite Code
-              </div>
-              <div className="text-3xl font-mono font-black text-amber-400 tracking-widest my-1">
-                {roomCode}
-              </div>
-              <button
-                onClick={handleCopyLink}
-                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 hover:text-white transition-all"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Link Copied!' : 'Copy Game Link'}</span>
-              </button>
-            </div>
-
-            {/* Players List */}
-            <div>
-              <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-                <div className="flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-amber-400" />
-                  <span>Players at Table ({players.length}/5)</span>
+          <>
+            {status === 'joining' && (players.length === 0 || !players.some((p) => p.id === myPlayerId)) ? (
+              <div className="py-8 px-4 text-center space-y-5">
+                <div className="relative mx-auto w-16 h-16 flex items-center justify-center">
+                  <div className="w-16 h-16 border-4 border-amber-500/20 border-t-amber-400 rounded-full animate-spin" />
+                  <Users className="w-6 h-6 text-amber-400 absolute" />
                 </div>
-                {isHost && players.length < 5 && (
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                    Connecting to Table
+                  </div>
+                  <div className="text-3xl font-mono font-black text-amber-400 tracking-widest mb-2">
+                    {roomCode}
+                  </div>
+                  <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+                    Establishing peer-to-peer connection with the host. Please wait a moment...
+                  </p>
+                </div>
+                {onCancelJoin && (
                   <button
-                    onClick={onAddBot}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/50 text-purple-300 hover:text-white text-[11px] font-bold transition-all shadow active:scale-95"
+                    onClick={onCancelJoin}
+                    className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 hover:text-white transition-all shadow"
                   >
-                    <Bot className="w-3.5 h-3.5" />
-                    <span>+ Add AI Bot</span>
+                    Cancel
                   </button>
                 )}
               </div>
-
-              <div className="space-y-2">
-                {players.map((p, idx) => (
-                  <div
-                    key={p.id}
-                    className="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800 text-sm font-bold"
+            ) : (
+              <div className="space-y-6">
+                {/* Room Code Card */}
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center">
+                  <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">
+                    Room Invite Code
+                  </div>
+                  <div className="text-3xl font-mono font-black text-amber-400 tracking-widest my-1">
+                    {roomCode}
+                  </div>
+                  <button
+                    onClick={handleCopyLink}
+                    className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 hover:text-white transition-all"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-xs font-black text-amber-400">
-                        {idx + 1}
-                      </div>
-                      <span className="text-white">
-                        {p.name} {p.id === myPlayerId && <span className="text-slate-500 text-xs">(You)</span>}
-                      </span>
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copied ? 'Link Copied!' : 'Copy Game Link'}</span>
+                  </button>
+                </div>
+
+                {/* Players List */}
+                <div>
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <Users className="w-4 h-4 text-amber-400" />
+                      <span>Players at Table ({players.length}/5)</span>
                     </div>
-                    {p.isHost && (
-                      <span className="text-[10px] bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded-full uppercase tracking-wider font-extrabold">
-                        Host
-                      </span>
+                    {isHost && players.length < 5 && (
+                      <button
+                        onClick={onAddBot}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/50 text-purple-300 hover:text-white text-[11px] font-bold transition-all shadow active:scale-95"
+                      >
+                        <Bot className="w-3.5 h-3.5" />
+                        <span>+ Add AI Bot</span>
+                      </button>
                     )}
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Start Game Button (Host Only) */}
-            {isHost ? (
-              <button
-                disabled={players.length < 2}
-                onClick={onStartGame}
-                className={`w-full py-4 px-6 rounded-2xl font-black text-sm uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95
-                  ${
-                    players.length >= 2
-                      ? 'bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 cursor-pointer animate-pulse'
-                      : 'bg-slate-800 text-slate-600 cursor-not-allowed'
-                  }
-                `}
-              >
-                <Play className="w-5 h-5 fill-current" />
-                <span>{players.length >= 2 ? 'Deal Cards & Start!' : 'Waiting for at least 2 players...'}</span>
-              </button>
-            ) : (
-              <div className="text-center p-3 text-xs text-slate-400 italic">
-                Waiting for the host to deal cards...
+                  <div className="space-y-2">
+                    {players.map((p, idx) => (
+                      <div
+                        key={p.id}
+                        className="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800 text-sm font-bold"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-xs font-black text-amber-400">
+                            {idx + 1}
+                          </div>
+                          <span className="text-white">
+                            {p.name} {p.id === myPlayerId && <span className="text-slate-500 text-xs">(You)</span>}
+                          </span>
+                        </div>
+                        {p.isHost && (
+                          <span className="text-[10px] bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded-full uppercase tracking-wider font-extrabold">
+                            Host
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Start Game Button (Host Only) */}
+                {isHost ? (
+                  <button
+                    disabled={players.length < 2}
+                    onClick={onStartGame}
+                    className={`w-full py-4 px-6 rounded-2xl font-black text-sm uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95
+                      ${
+                        players.length >= 2
+                          ? 'bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 cursor-pointer animate-pulse'
+                          : 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                      }
+                    `}
+                  >
+                    <Play className="w-5 h-5 fill-current" />
+                    <span>{players.length >= 2 ? 'Deal Cards & Start!' : 'Waiting for at least 2 players...'}</span>
+                  </button>
+                ) : (
+                  <div className="text-center p-3 text-xs text-slate-400 italic">
+                    Waiting for the host to deal cards...
+                  </div>
+                )}
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>
