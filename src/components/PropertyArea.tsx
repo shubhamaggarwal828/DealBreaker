@@ -61,7 +61,7 @@ export const PropertyArea: React.FC<PropertyAreaProps> = ({
                   style={{ backgroundColor: meta.colorHex }}
                   className="w-2.5 h-2.5 rounded-full border border-white/60 shadow flex-shrink-0"
                 />
-                <span className="text-[10px] font-black text-stone-100 uppercase tracking-tight truncate max-w-[65px]">
+                <span className="text-[10px] font-black text-stone-100 uppercase tracking-tight truncate max-w-[120px]">
                   {meta.name}
                 </span>
               </div>
@@ -92,8 +92,8 @@ export const PropertyArea: React.FC<PropertyAreaProps> = ({
               </div>
             </div>
 
-            {/* Overlapping Card Fan */}
-            <div className={`flex transition-all duration-200 pt-0.5 ${isCompact ? '-space-x-10 hover:-space-x-7' : '-space-x-12 hover:-space-x-7'}`}>
+            {/* Overlapping Card Fan with improved clearance */}
+            <div className={`flex transition-all duration-200 pt-0.5 ${isCompact ? '-space-x-8 hover:-space-x-4' : '-space-x-9 hover:-space-x-4'}`}>
               {set.cards.map((entry) => {
                 const isSelected = selectableCardId === entry.card.id;
                 const canFlip =

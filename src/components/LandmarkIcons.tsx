@@ -596,3 +596,4 @@ export const LandmarkIcon: React.FC<LandmarkIconProps> = ({ id, className = 'w-8
       return null;
   }
 };
+

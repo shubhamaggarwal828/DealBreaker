@@ -123,9 +123,9 @@ const OpponentSetStack: React.FC<{
         <div className="bg-stone-950 py-0.2 px-0.5 text-center border-t border-stone-800">
           <span
             style={{ color: meta.colorHex }}
-            className="text-[6px] font-black uppercase tracking-tight truncate block"
+            className="text-[6.5px] font-black uppercase tracking-tight truncate block"
           >
-            {meta.name.slice(0, 5)}
+            {meta.city ? meta.city.split('/')[0].split('&')[0].trim() : meta.name}
           </span>
         </div>
       </div>
