@@ -157,7 +157,7 @@ export function playToBank(state: GameState, playerId: string, cardId: string): 
       {
         id: makeId('log'),
         timestamp: Date.now(),
-        text: `${player.name} banked ${card.name} (+$${card.value}M to bank).`,
+        text: `${player.name} banked ${card.name} (+₹${card.value} Cr to bank).`,
         type: 'action',
       },
     ],

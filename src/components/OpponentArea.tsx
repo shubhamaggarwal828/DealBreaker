@@ -112,7 +112,7 @@ const OpponentSetStack: React.FC<{
 
           {/* Center Stack Graphic */}
           <div className="font-mono font-black text-[9px] text-stone-900 tracking-tighter">
-            ${rentVal}M
+            ₹{rentVal} Cr
           </div>
           <div className="text-[6px] font-bold text-stone-500 uppercase tracking-tight">
             rent
@@ -155,14 +155,14 @@ const OpponentSetStack: React.FC<{
                   ? '★ 10-Color Wild'
                   : entry.card.name}
               </span>
-              <span className="text-amber-400 font-mono font-bold">${entry.card.value}M</span>
+              <span className="text-amber-400 font-mono font-bold">₹{entry.card.value} Cr</span>
             </div>
           ))}
         </div>
 
         <div className="mt-1.5 pt-1 border-t border-stone-800 flex justify-between items-center text-[9px]">
           <span className="text-stone-400">Current Rent:</span>
-          <span className="text-emerald-400 font-black font-mono">${rentVal}M</span>
+          <span className="text-emerald-400 font-black font-mono">₹{rentVal} Cr</span>
         </div>
       </div>
     </div>
@@ -225,7 +225,7 @@ export const OpponentArea: React.FC<OpponentAreaProps> = ({
               <div className="flex items-center gap-2 text-[9px] text-stone-400">
                 <span className="text-stone-300 font-bold">🂠 {opp.hand.length} in hand</span>
                 <span className="text-emerald-400 font-mono font-bold flex items-center gap-0.5">
-                  <Landmark className="w-2.5 h-2.5" /> ${bankTotal}M
+                  <Landmark className="w-2.5 h-2.5" /> ₹{bankTotal} Cr
                 </span>
               </div>
             </div>
@@ -304,7 +304,7 @@ export const OpponentArea: React.FC<OpponentAreaProps> = ({
                   </div>
                   <div className="flex items-center gap-1.5 text-[8px] text-stone-400">
                     <span>🂠 {opp.hand.length}</span>
-                    <span className="text-emerald-400 font-mono font-bold">${bankTotal}M</span>
+                    <span className="text-emerald-400 font-mono font-bold">₹{bankTotal} Cr</span>
                   </div>
                 </div>
               </div>

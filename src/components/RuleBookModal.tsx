@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Trophy, DollarSign, Building2, Zap, ShieldAlert, Sparkles } from 'lucide-react';
+import { X, Trophy, Coins, Building2, Zap, ShieldAlert, Sparkles } from 'lucide-react';
 import { COLOR_METAS } from '../engine/deck';
 import { PropertyColor } from '../types/game';
 
@@ -63,13 +63,13 @@ export const RuleBookModal: React.FC<RuleBookModalProps> = ({ onClose }) => {
           {/* Golden Rules */}
           <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
             <h3 className="font-black text-base text-white flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-emerald-400" /> Paying Rents & Debts
+              <Coins className="w-4 h-4 text-emerald-400" /> Paying Rents & Debts
             </h3>
             <ul className="list-disc list-inside space-y-1 text-slate-300">
               <li>You can <strong>ONLY pay debts from cards on your table</strong> (your Bank or Properties).</li>
               <li>You <strong>NEVER pay from your hand</strong>.</li>
-              <li><strong>NO CHANGE IS GIVEN!</strong> If you owe $2M and pay with a $5M bill, you don't get $3M back.</li>
-              <li>If you have $0 on your table, you pay nothing (you don't go into negative debt).</li>
+              <li><strong>NO CHANGE IS GIVEN!</strong> If you owe ₹2 Cr and pay with a ₹5 Cr note, you don't get ₹3 Cr back.</li>
+              <li>If you have ₹0 on your table, you pay nothing (you don't go into negative debt).</li>
             </ul>
           </div>
 
@@ -80,27 +80,27 @@ export const RuleBookModal: React.FC<RuleBookModalProps> = ({ onClose }) => {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="font-extrabold text-amber-400">Deal Breaker ($5M):</span>
+                <span className="font-extrabold text-amber-400">Deal Breaker (₹5 Cr):</span>
                 <p className="text-slate-400 mt-0.5">Steal an entire completed property set from an opponent (including Houses/Hotels)!</p>
               </div>
               <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="font-extrabold text-red-400">Just Say No ($4M):</span>
+                <span className="font-extrabold text-red-400">Just Say No (₹4 Cr):</span>
                 <p className="text-slate-400 mt-0.5">Cancel any action card played against you! Can be played at any time.</p>
               </div>
               <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="font-extrabold text-orange-400">Sly Deal ($3M):</span>
+                <span className="font-extrabold text-orange-400">Sly Deal (₹3 Cr):</span>
                 <p className="text-slate-400 mt-0.5">Steal 1 single property card from an opponent (cannot be from a full set).</p>
               </div>
               <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="font-extrabold text-yellow-400">Debt Collector ($5M):</span>
-                <p className="text-slate-400 mt-0.5">Force any 1 player to pay you $5M from their bank or properties.</p>
+                <span className="font-extrabold text-yellow-400">Debt Collector (₹5 Cr):</span>
+                <p className="text-slate-400 mt-0.5">Force any 1 player to pay you ₹5 Cr from their bank or properties.</p>
               </div>
               <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="font-extrabold text-pink-400">It's My Birthday ($2M):</span>
-                <p className="text-slate-400 mt-0.5">Every player at the table must pay you $2M!</p>
+                <span className="font-extrabold text-pink-400">It's My Birthday (₹2 Cr):</span>
+                <p className="text-slate-400 mt-0.5">Every player at the table must pay you ₹2 Cr!</p>
               </div>
               <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="font-extrabold text-blue-400">Pass Go ($1M):</span>
+                <span className="font-extrabold text-blue-400">Pass Go (₹1 Cr):</span>
                 <p className="text-slate-400 mt-0.5">Draw 2 extra cards from the deck.</p>
               </div>
             </div>

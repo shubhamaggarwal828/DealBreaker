@@ -76,13 +76,13 @@ export const PropertyArea: React.FC<PropertyAreaProps> = ({
 
                 {/* House/Hotel Badges */}
                 {set.hasHouse && (
-                  <span className="bg-emerald-600 text-white px-1 py-0.2 rounded text-[8px] font-black flex items-center gap-0.5 shadow" title="House (+ $3M rent)">
-                    <Home className="w-2 h-2" /> +3M
+                  <span className="bg-emerald-600 text-white px-1 py-0.2 rounded text-[8px] font-black flex items-center gap-0.5 shadow" title="House (+ ₹3 Cr rent)">
+                    <Home className="w-2 h-2" /> +₹3 Cr
                   </span>
                 )}
                 {set.hasHotel && (
-                  <span className="bg-red-600 text-white px-1 py-0.2 rounded text-[8px] font-black flex items-center gap-0.5 shadow" title="Hotel (+ $4M rent)">
-                    <Building2 className="w-2 h-2" /> +4M
+                  <span className="bg-red-600 text-white px-1 py-0.2 rounded text-[8px] font-black flex items-center gap-0.5 shadow" title="Hotel (+ ₹4 Cr rent)">
+                    <Building2 className="w-2 h-2" /> +₹4 Cr
                   </span>
                 )}
 

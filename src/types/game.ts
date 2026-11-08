@@ -28,13 +28,15 @@ export interface Card {
   id: string;
   name: string;
   type: CardType;
-  value: number; // Value in millions ($M) when banked
+  value: number; // Value in Indian Rupees Crores (₹ Cr) when banked
   description?: string;
   
   // Property & Wildcard specifics
   mainColor?: PropertyColor;
   colors?: PropertyColor[]; // for dual wildcards or rent cards
   isMultiWildcard?: boolean; // 10-color wildcard (value 0)
+  landmarkId?: string; // ID of iconic Indian monument / landmark
+  cityName?: string; // Indian city name (e.g. Agra, Mumbai, Delhi, Bengaluru)
   
   // Action specifics
   actionType?: ActionType;

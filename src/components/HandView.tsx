@@ -51,7 +51,7 @@ export const HandView: React.FC<HandViewProps> = ({
               className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-lg font-black text-[11px] shadow transition-all active:scale-95"
             >
               <Landmark className="w-3 h-3" />
-              <span>Deposit (${selectedCard.value}M)</span>
+              <span>Deposit (₹{selectedCard.value} Cr)</span>
             </button>
           )}
 

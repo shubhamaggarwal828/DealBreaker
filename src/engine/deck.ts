@@ -2,6 +2,7 @@ import { Card, PropertyColor, ActionType } from '../types/game';
 
 export interface ColorMeta {
   name: string;
+  city: string;
   setSize: number;
   rentTiers: number[]; // Rent at 1, 2, 3, 4 cards
   colorHex: string;
@@ -12,6 +13,7 @@ export interface ColorMeta {
 export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
   brown: {
     name: 'Brown',
+    city: 'Agra & Delhi',
     setSize: 2,
     rentTiers: [1, 2],
     colorHex: '#8B4513',
@@ -20,6 +22,7 @@ export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
   },
   darkblue: {
     name: 'Dark Blue',
+    city: 'Mumbai',
     setSize: 2,
     rentTiers: [3, 8],
     colorHex: '#0038A8',
@@ -28,6 +31,7 @@ export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
   },
   green: {
     name: 'Green',
+    city: 'Bengaluru',
     setSize: 3,
     rentTiers: [2, 4, 7],
     colorHex: '#1E7921',
@@ -36,6 +40,7 @@ export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
   },
   yellow: {
     name: 'Yellow',
+    city: 'Jaipur',
     setSize: 3,
     rentTiers: [2, 4, 6],
     colorHex: '#EAB308',
@@ -44,6 +49,7 @@ export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
   },
   red: {
     name: 'Red',
+    city: 'Kolkata',
     setSize: 3,
     rentTiers: [2, 3, 6],
     colorHex: '#D91E1E',
@@ -52,6 +58,7 @@ export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
   },
   orange: {
     name: 'Orange',
+    city: 'Hyderabad',
     setSize: 3,
     rentTiers: [1, 3, 5],
     colorHex: '#F97316',
@@ -60,6 +67,7 @@ export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
   },
   pink: {
     name: 'Pink',
+    city: 'Goa',
     setSize: 3,
     rentTiers: [1, 2, 4],
     colorHex: '#EC4899',
@@ -68,6 +76,7 @@ export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
   },
   lightblue: {
     name: 'Light Blue',
+    city: 'Chennai',
     setSize: 3,
     rentTiers: [1, 2, 3],
     colorHex: '#38BDF8',
@@ -75,7 +84,8 @@ export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
     textColor: 'text-slate-900',
   },
   railroad: {
-    name: 'Railroad',
+    name: 'Indian Railways',
+    city: 'Express Lines',
     setSize: 4,
     rentTiers: [1, 2, 3, 4],
     colorHex: '#334155',
@@ -83,7 +93,8 @@ export const COLOR_METAS: Record<PropertyColor, ColorMeta> = {
     textColor: 'text-white',
   },
   utility: {
-    name: 'Utility',
+    name: 'Clean Energy',
+    city: 'Power Grid',
     setSize: 2,
     rentTiers: [1, 2],
     colorHex: '#64748B',
@@ -104,46 +115,46 @@ export function createFullDeck(): Card[] {
   let idCounter = 1;
   const uid = (prefix: string) => `${prefix}_${idCounter++}`;
 
-  // 1. STANDARD PROPERTIES (28 cards)
-  const standardProps: { name: string; color: PropertyColor; value: number }[] = [
-    // Brown (2)
-    { name: 'Baltic Avenue', color: 'brown', value: 1 },
-    { name: 'Mediterranean Avenue', color: 'brown', value: 1 },
-    // Dark Blue (2)
-    { name: 'Boardwalk', color: 'darkblue', value: 4 },
-    { name: 'Park Place', color: 'darkblue', value: 4 },
-    // Green (3)
-    { name: 'North Carolina Avenue', color: 'green', value: 4 },
-    { name: 'Pacific Avenue', color: 'green', value: 4 },
-    { name: 'Pennsylvania Avenue', color: 'green', value: 4 },
-    // Yellow (3)
-    { name: 'Atlantic Avenue', color: 'yellow', value: 3 },
-    { name: 'Ventnor Avenue', color: 'yellow', value: 3 },
-    { name: 'Marvin Gardens', color: 'yellow', value: 3 },
-    // Red (3)
-    { name: 'Kentucky Avenue', color: 'red', value: 3 },
-    { name: 'Indiana Avenue', color: 'red', value: 3 },
-    { name: 'Illinois Avenue', color: 'red', value: 3 },
-    // Orange (3)
-    { name: 'New York Avenue', color: 'orange', value: 2 },
-    { name: 'St. James Place', color: 'orange', value: 2 },
-    { name: 'Tennessee Avenue', color: 'orange', value: 2 },
-    // Pink (3)
-    { name: 'St. Charles Place', color: 'pink', value: 2 },
-    { name: 'Virginia Avenue', color: 'pink', value: 2 },
-    { name: 'States Avenue', color: 'pink', value: 2 },
-    // Light Blue (3)
-    { name: 'Connecticut Avenue', color: 'lightblue', value: 1 },
-    { name: 'Oriental Avenue', color: 'lightblue', value: 1 },
-    { name: 'Vermont Avenue', color: 'lightblue', value: 1 },
-    // Railroads (4)
-    { name: 'Reading Railroad', color: 'railroad', value: 2 },
-    { name: 'Pennsylvania Railroad', color: 'railroad', value: 2 },
-    { name: 'B. & O. Railroad', color: 'railroad', value: 2 },
-    { name: 'Short Line Railroad', color: 'railroad', value: 2 },
-    // Utilities (2)
-    { name: 'Electric Company', color: 'utility', value: 2 },
-    { name: 'Water Works', color: 'utility', value: 2 },
+  // 1. STANDARD PROPERTIES (28 cards) - Iconic Indian Landmarks & Cities
+  const standardProps: { name: string; color: PropertyColor; value: number; landmarkId: string; cityName: string }[] = [
+    // Brown (2) - Agra & Delhi
+    { name: 'Taj Mahal', color: 'brown', value: 1, landmarkId: 'taj_mahal', cityName: 'Agra' },
+    { name: 'Red Fort', color: 'brown', value: 1, landmarkId: 'red_fort', cityName: 'Delhi' },
+    // Dark Blue (2) - Mumbai
+    { name: 'Gateway of India', color: 'darkblue', value: 4, landmarkId: 'gateway_of_india', cityName: 'Mumbai' },
+    { name: 'Marine Drive', color: 'darkblue', value: 4, landmarkId: 'marine_drive', cityName: 'Mumbai' },
+    // Green (3) - Bengaluru
+    { name: 'Vidhana Soudha', color: 'green', value: 4, landmarkId: 'vidhana_soudha', cityName: 'Bengaluru' },
+    { name: 'Cubbon Park', color: 'green', value: 4, landmarkId: 'cubbon_park', cityName: 'Bengaluru' },
+    { name: 'MG Road', color: 'green', value: 4, landmarkId: 'mg_road', cityName: 'Bengaluru' },
+    // Yellow (3) - Jaipur
+    { name: 'Hawa Mahal', color: 'yellow', value: 3, landmarkId: 'hawa_mahal', cityName: 'Jaipur' },
+    { name: 'Amber Fort', color: 'yellow', value: 3, landmarkId: 'amber_fort', cityName: 'Jaipur' },
+    { name: 'City Palace', color: 'yellow', value: 3, landmarkId: 'city_palace', cityName: 'Jaipur' },
+    // Red (3) - Kolkata
+    { name: 'Victoria Memorial', color: 'red', value: 3, landmarkId: 'victoria_memorial', cityName: 'Kolkata' },
+    { name: 'Howrah Bridge', color: 'red', value: 3, landmarkId: 'howrah_bridge', cityName: 'Kolkata' },
+    { name: 'Park Street', color: 'red', value: 3, landmarkId: 'park_street', cityName: 'Kolkata' },
+    // Orange (3) - Hyderabad
+    { name: 'Charminar', color: 'orange', value: 2, landmarkId: 'charminar', cityName: 'Hyderabad' },
+    { name: 'Golconda Fort', color: 'orange', value: 2, landmarkId: 'golconda_fort', cityName: 'Hyderabad' },
+    { name: 'HITEC City', color: 'orange', value: 2, landmarkId: 'hitec_city', cityName: 'Hyderabad' },
+    // Pink (3) - Goa
+    { name: 'Calangute Beach', color: 'pink', value: 2, landmarkId: 'calangute_beach', cityName: 'Goa' },
+    { name: 'Basilica of Bom Jesus', color: 'pink', value: 2, landmarkId: 'basilica_bom_jesus', cityName: 'Goa' },
+    { name: 'Fort Aguada', color: 'pink', value: 2, landmarkId: 'fort_aguada', cityName: 'Goa' },
+    // Light Blue (3) - Chennai
+    { name: 'Marina Beach', color: 'lightblue', value: 1, landmarkId: 'marina_beach', cityName: 'Chennai' },
+    { name: 'Kapaleeshwarar Temple', color: 'lightblue', value: 1, landmarkId: 'kapaleeshwarar_temple', cityName: 'Chennai' },
+    { name: 'Shore Temple', color: 'lightblue', value: 1, landmarkId: 'shore_temple', cityName: 'Mahabalipuram' },
+    // Railroads (4) - Indian Railways Express Lines
+    { name: 'Vande Bharat Express', color: 'railroad', value: 2, landmarkId: 'vande_bharat', cityName: 'Indian Railways' },
+    { name: 'Rajdhani Express', color: 'railroad', value: 2, landmarkId: 'rajdhani_express', cityName: 'Indian Railways' },
+    { name: 'Shatabdi Express', color: 'railroad', value: 2, landmarkId: 'shatabdi_express', cityName: 'Indian Railways' },
+    { name: 'Duronto Express', color: 'railroad', value: 2, landmarkId: 'duronto_express', cityName: 'Indian Railways' },
+    // Utilities (2) - Clean Energy & Power
+    { name: 'Bhadla Solar Park', color: 'utility', value: 2, landmarkId: 'bhadla_solar', cityName: 'Clean Energy' },
+    { name: 'Tehri Hydro Dam', color: 'utility', value: 2, landmarkId: 'tehri_dam', cityName: 'Clean Energy' },
   ];
 
   standardProps.forEach((prop) => {
@@ -153,7 +164,9 @@ export function createFullDeck(): Card[] {
       type: 'property',
       value: prop.value,
       mainColor: prop.color,
-      description: `Property card. Part of ${COLOR_METAS[prop.color].name} set (${COLOR_METAS[prop.color].setSize} needed).`,
+      landmarkId: prop.landmarkId,
+      cityName: prop.cityName,
+      description: `Property card in ${prop.cityName}. Part of ${COLOR_METAS[prop.color].name} set (${COLOR_METAS[prop.color].setSize} needed).`,
     });
   });
 
@@ -230,14 +243,14 @@ export function createFullDeck(): Card[] {
       actionType: 'debt_collector',
       value: 5,
       count: 3,
-      desc: 'Demand $5M from any ONE player.',
+      desc: 'Demand ₹5 Cr from any ONE player.',
     },
     {
       name: "It's My Birthday",
       actionType: 'its_my_birthday',
       value: 2,
       count: 3,
-      desc: 'All players must pay you $2M as a birthday gift!',
+      desc: 'All players must pay you ₹2 Cr as a birthday gift!',
     },
     {
       name: 'Pass Go',
@@ -251,14 +264,14 @@ export function createFullDeck(): Card[] {
       actionType: 'house',
       value: 3,
       count: 3,
-      desc: 'Add to any completed property set (except Railroads & Utilities) to increase rent by $3M.',
+      desc: 'Add to any completed property set (except Railroads & Utilities) to increase rent by ₹3 Cr.',
     },
     {
       name: 'Hotel',
       actionType: 'hotel',
       value: 4,
       count: 2,
-      desc: 'Add to any completed property set with a House to increase rent by an additional $4M.',
+      desc: 'Add to any completed property set with a House to increase rent by an additional ₹4 Cr.',
     },
     {
       name: 'Double The Rent',
@@ -316,7 +329,7 @@ export function createFullDeck(): Card[] {
     });
   }
 
-  // 5. MONEY CARDS (20 cards)
+  // 5. MONEY CARDS (20 cards) - Indian Rupees Crores (₹ Cr)
   const moneyCards: { value: number; count: number }[] = [
     { value: 1, count: 6 },
     { value: 2, count: 5 },
@@ -330,10 +343,10 @@ export function createFullDeck(): Card[] {
     for (let i = 0; i < count; i++) {
       cards.push({
         id: uid('money'),
-        name: `$${value}M Cash`,
+        name: `₹${value} Cr Cash`,
         type: 'money',
         value,
-        description: `Deposit in your bank to pay rents and debts. Worth $${value}M.`,
+        description: `Deposit in your bank to pay rents and debts. Worth ₹${value} Cr.`,
       });
     }
   });

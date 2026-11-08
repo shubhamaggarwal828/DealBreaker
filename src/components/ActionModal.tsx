@@ -160,7 +160,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
             <div className="text-right">
               <div className="text-xs text-slate-400">Amount Owed</div>
               <div className="text-2xl font-black text-amber-400 font-mono">
-                ${myPayment.amountOwed}M
+                ₹{myPayment.amountOwed} Cr
               </div>
             </div>
           </div>
@@ -173,7 +173,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
             {/* 1. Pick from Bank */}
             <div>
               <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                Your Bank (${selectedBankTotal}M selected)
+                Your Bank (₹{selectedBankTotal} Cr selected)
               </div>
               {me.bank.length === 0 ? (
                 <div className="text-xs text-slate-600 italic">No cash in bank</div>
@@ -204,7 +204,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
             {/* 2. Pick from Properties */}
             <div>
               <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                Your Properties (${selectedPropTotal}M selected)
+                Your Properties (₹{selectedPropTotal} Cr selected)
               </div>
               {me.propertySets.length === 0 ? (
                 <div className="text-xs text-slate-600 italic">No properties on table</div>
@@ -256,7 +256,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
                   currentPaymentTotal >= myPayment.amountOwed ? 'text-emerald-400' : 'text-amber-400'
                 }`}
               >
-                ${currentPaymentTotal}M / ${myPayment.amountOwed}M
+                ₹{currentPaymentTotal} Cr / ₹{myPayment.amountOwed} Cr
               </div>
             </div>
 

@@ -807,7 +807,7 @@ export class PeerNetworkManager {
         return;
       }
 
-      // 5. BIRTHDAY: Demand $2M from all
+      // 5. BIRTHDAY: Demand ₹2 Cr from all
       const bday = bot.hand.find((c) => c.actionType === 'its_my_birthday');
       if (bday) {
         this.handleGameAction({ type: 'PLAY_ACTION', cardId: bday.id });
@@ -1207,7 +1207,7 @@ export class PeerNetworkManager {
         fromPlayerId: p.id,
         toPlayerId: activePlayer.id,
         amountOwed: 2,
-        reason: "It's My Birthday ($2M)",
+        reason: "It's My Birthday (₹2 Cr)",
       }));
 
       this.currentState = {
@@ -1216,7 +1216,7 @@ export class PeerNetworkManager {
         isActionResolving: true,
         actionStatus: {
           title: "🎂 It's My Birthday!",
-          subtitle: `${activePlayer.name} demands $2M from all players. Settling debts...`,
+          subtitle: `${activePlayer.name} demands ₹2 Cr from all players. Settling debts...`,
           type: 'alert',
         },
         logs: [
@@ -1224,7 +1224,7 @@ export class PeerNetworkManager {
           {
             id: makeId('log'),
             timestamp: Date.now(),
-            text: `🎂 ${activePlayer.name} played "It's My Birthday"! All players must pay $2M.`,
+            text: `🎂 ${activePlayer.name} played "It's My Birthday"! All players must pay ₹2 Cr.`,
             type: 'alert',
           },
         ],
@@ -1251,7 +1251,7 @@ export class PeerNetworkManager {
           isActionResolving: true,
           actionStatus: {
             title: '💸 Debt Collector!',
-            subtitle: `${activePlayer.name} demands $5M from ${target.name}. Waiting for defense...`,
+            subtitle: `${activePlayer.name} demands ₹5 Cr from ${target.name}. Waiting for defense...`,
             type: 'action',
           },
           logs: [
@@ -1259,7 +1259,7 @@ export class PeerNetworkManager {
             {
               id: makeId('log'),
               timestamp: Date.now(),
-              text: `${activePlayer.name} targeted ${target.name} with Debt Collector ($5M)!`,
+              text: `${activePlayer.name} targeted ${target.name} with Debt Collector (₹5 Cr)!`,
               type: 'action',
             },
           ],
@@ -1298,7 +1298,7 @@ export class PeerNetworkManager {
             isActionResolving: true,
             actionStatus: {
               title: '🏠 Wild Rent!',
-              subtitle: `${activePlayer.name} charged Wild Rent ($${rentAmount}M) on ${target.name}. Waiting for defense...`,
+              subtitle: `${activePlayer.name} charged Wild Rent (₹${rentAmount} Cr) on ${target.name}. Waiting for defense...`,
               type: 'action',
             },
             logs: [
@@ -1306,7 +1306,7 @@ export class PeerNetworkManager {
               {
                 id: makeId('log'),
                 timestamp: Date.now(),
-                text: `${activePlayer.name} played Wild Rent on ${COLOR_METAS[chosenColor].name} ($${rentAmount}M) targeting ${target.name}!`,
+                text: `${activePlayer.name} played Wild Rent on ${COLOR_METAS[chosenColor].name} (₹${rentAmount} Cr) targeting ${target.name}!`,
                 type: 'action',
               },
             ],
@@ -1321,7 +1321,7 @@ export class PeerNetworkManager {
           fromPlayerId: p.id,
           toPlayerId: activePlayer.id,
           amountOwed: rentAmount,
-          reason: `Rent for ${COLOR_METAS[chosenColor].name} ($${rentAmount}M)`,
+          reason: `Rent for ${COLOR_METAS[chosenColor].name} (₹${rentAmount} Cr)`,
         }));
 
         this.currentState = {
@@ -1330,7 +1330,7 @@ export class PeerNetworkManager {
           isActionResolving: true,
           actionStatus: {
             title: `🏠 Rent on ${COLOR_METAS[chosenColor].name}!`,
-            subtitle: `${activePlayer.name} charged $${rentAmount}M rent to all players. Settling debts...`,
+            subtitle: `${activePlayer.name} charged ₹${rentAmount} Cr rent to all players. Settling debts...`,
             type: 'payment',
           },
           logs: [
@@ -1338,7 +1338,7 @@ export class PeerNetworkManager {
             {
               id: makeId('log'),
               timestamp: Date.now(),
-              text: `🏠 ${activePlayer.name} charged Rent on ${COLOR_METAS[chosenColor].name} ($${rentAmount}M) to all players!`,
+              text: `🏠 ${activePlayer.name} charged Rent on ${COLOR_METAS[chosenColor].name} (₹${rentAmount} Cr) to all players!`,
               type: 'action',
             },
           ],
@@ -1609,13 +1609,13 @@ export class PeerNetworkManager {
             fromPlayerId: target.id,
             toPlayerId: source.id,
             amountOwed: 5,
-            reason: 'Debt Collector ($5M)',
+            reason: 'Debt Collector (₹5 Cr)',
           },
         ],
         isActionResolving: true,
         actionStatus: {
           title: '💸 Debt Due',
-          subtitle: `${target.name} must pay $5M to ${source.name}.`,
+          subtitle: `${target.name} must pay ₹5 Cr to ${source.name}.`,
           type: 'payment',
         },
       };
@@ -1635,13 +1635,13 @@ export class PeerNetworkManager {
             fromPlayerId: target.id,
             toPlayerId: source.id,
             amountOwed: action.rentAmount,
-            reason: `Wild Rent on ${COLOR_METAS[action.rentColor as PropertyColor].name} ($${action.rentAmount}M)`,
+            reason: `Wild Rent on ${COLOR_METAS[action.rentColor as PropertyColor].name} (₹${action.rentAmount} Cr)`,
           },
         ],
         isActionResolving: true,
         actionStatus: {
           title: '💸 Wild Rent Due',
-          subtitle: `${target.name} must pay $${action.rentAmount}M to ${source.name}.`,
+          subtitle: `${target.name} must pay ₹${action.rentAmount} Cr to ${source.name}.`,
           type: 'payment',
         },
       };

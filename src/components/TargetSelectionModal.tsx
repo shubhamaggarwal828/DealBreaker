@@ -225,7 +225,7 @@ export const TargetSelectionModal: React.FC<TargetSelectionModalProps> = ({
           <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
             <div className="flex items-center gap-2 text-yellow-400 font-black text-lg">
               <Coins className="w-5 h-5" />
-              <span>Debt Collector ($5M)</span>
+              <span>Debt Collector (₹5 Cr)</span>
             </div>
             <button onClick={onCancel} className="text-slate-400 hover:text-white">
               <X className="w-5 h-5" />
@@ -233,7 +233,7 @@ export const TargetSelectionModal: React.FC<TargetSelectionModalProps> = ({
           </div>
 
           <div className="text-xs text-slate-300 mb-3">
-            Choose which player must pay you $5M:
+            Choose which player must pay you ₹5 Cr:
           </div>
 
           <div className="space-y-2 mb-4">
@@ -250,7 +250,7 @@ export const TargetSelectionModal: React.FC<TargetSelectionModalProps> = ({
                 >
                   <span className="font-extrabold text-sm text-white">{opp.name}</span>
                   <span className="text-xs font-mono font-bold text-emerald-400">
-                    Bank: ${bankTotal}M
+                    Bank: ₹{bankTotal} Cr
                   </span>
                 </button>
               );
@@ -271,7 +271,7 @@ export const TargetSelectionModal: React.FC<TargetSelectionModalProps> = ({
                 ${selectedPlayerId ? 'bg-yellow-400 hover:bg-yellow-300 text-slate-950 active:scale-95' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}
               `}
             >
-              Collect $5M!
+              Collect ₹5 Cr!
             </button>
           </div>
         </div>
@@ -341,7 +341,7 @@ export const TargetSelectionModal: React.FC<TargetSelectionModalProps> = ({
                     >
                       <span className="text-white">{opp.name}</span>
                       <span className="text-emerald-400 font-mono">
-                        Bank: ${opp.bank.reduce((sum, c) => sum + c.value, 0)}M
+                        Bank: ₹{opp.bank.reduce((sum, c) => sum + c.value, 0)} Cr
                       </span>
                     </button>
                   ))}

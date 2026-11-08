@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '../types/game';
 import { CardView } from './CardView';
-import { Landmark, DollarSign } from 'lucide-react';
+import { Landmark } from 'lucide-react';
 
 interface BankViewProps {
   bank: Card[];
@@ -26,9 +26,9 @@ export const BankView: React.FC<BankViewProps> = ({
           <Landmark className="w-3.5 h-3.5 text-emerald-400" />
           <span>YOUR BANK</span>
         </div>
-        <div className="bg-emerald-950 border border-emerald-500/50 px-2 py-0.5 rounded-full text-emerald-300 font-mono font-black text-xs shadow flex items-center gap-0.5">
-          <DollarSign className="w-3 h-3 text-emerald-400" />
-          <span>{totalBankValue}M CASH</span>
+        <div className="bg-emerald-950 border border-emerald-500/50 px-2 py-0.5 rounded-full text-emerald-300 font-mono font-black text-xs shadow flex items-center gap-1">
+          <span className="text-emerald-400 font-bold text-xs">₹</span>
+          <span>{totalBankValue} Cr CASH</span>
         </div>
       </div>
 

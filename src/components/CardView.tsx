@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, PropertyColor } from '../types/game';
 import { COLOR_METAS } from '../engine/deck';
+import { LandmarkIcon } from './LandmarkIcons';
 import {
   ShieldAlert,
   Coins,
@@ -102,7 +103,7 @@ export const CardView: React.FC<CardViewProps> = ({
           accentColor: '#ca8a04',
           bgTint: 'bg-yellow-50/90',
           title: 'DEBT COLLECTOR',
-          badgeText: 'COLLECT $5M',
+          badgeText: 'COLLECT ₹5 Cr',
           badgeBg: 'bg-yellow-600 text-white',
           Icon: Coins,
           iconColor: 'text-yellow-600',
@@ -113,7 +114,7 @@ export const CardView: React.FC<CardViewProps> = ({
           accentColor: '#c026d3',
           bgTint: 'bg-fuchsia-50/90',
           title: "IT'S MY BIRTHDAY",
-          badgeText: 'EVERYONE PAYS $2M',
+          badgeText: 'EVERYONE PAYS ₹2 Cr',
           badgeBg: 'bg-fuchsia-600 text-white',
           Icon: Gift,
           iconColor: 'text-fuchsia-600',
@@ -135,7 +136,7 @@ export const CardView: React.FC<CardViewProps> = ({
           accentColor: '#047857',
           bgTint: 'bg-emerald-50/90',
           title: 'HOUSE',
-          badgeText: '+ $3M RENT',
+          badgeText: '+ ₹3 Cr RENT',
           badgeBg: 'bg-emerald-600 text-white',
           Icon: Home,
           iconColor: 'text-emerald-700',
@@ -146,7 +147,7 @@ export const CardView: React.FC<CardViewProps> = ({
           accentColor: '#b91c1c',
           bgTint: 'bg-red-50/90',
           title: 'HOTEL',
-          badgeText: '+ $4M RENT',
+          badgeText: '+ ₹4 Cr RENT',
           badgeBg: 'bg-red-600 text-white',
           Icon: Building2,
           iconColor: 'text-red-700',
@@ -176,64 +177,71 @@ export const CardView: React.FC<CardViewProps> = ({
     }
   };
 
-  // Money Card Color Theming per Denomination
+  // Money Card Color Theming per Denomination (Indian Rupee Note Inspired)
   const getMoneyColor = (val: number) => {
     switch (val) {
       case 1:
         return {
-          bg: 'bg-[#FFF9C4]',
-          border: 'border-yellow-600',
-          text: 'text-yellow-900',
-          badge: 'bg-yellow-500 text-stone-950',
-          symbol: '$1M',
+          bg: 'bg-[#EDE7F6]', // Lavender
+          border: 'border-purple-600',
+          text: 'text-purple-950',
+          badge: 'bg-purple-700 text-white',
+          symbol: '₹1 Cr',
+          hindi: 'एक करोड़',
         };
       case 2:
         return {
-          bg: 'bg-[#FFE0B2]',
+          bg: 'bg-[#FFF3E0]', // Orange terracotta
           border: 'border-orange-600',
           text: 'text-orange-950',
-          badge: 'bg-orange-500 text-white',
-          symbol: '$2M',
+          badge: 'bg-orange-600 text-white',
+          symbol: '₹2 Cr',
+          hindi: 'दो करोड़',
         };
       case 3:
         return {
-          bg: 'bg-[#C8E6C9]',
-          border: 'border-emerald-600',
-          text: 'text-emerald-950',
-          badge: 'bg-emerald-600 text-white',
-          symbol: '$3M',
+          bg: 'bg-[#E0F7FA]', // Ocean cyan
+          border: 'border-cyan-700',
+          text: 'text-cyan-950',
+          badge: 'bg-cyan-700 text-white',
+          symbol: '₹3 Cr',
+          hindi: 'तीन करोड़',
         };
       case 4:
         return {
-          bg: 'bg-[#B3E5FC]',
-          border: 'border-sky-600',
-          text: 'text-sky-950',
-          badge: 'bg-sky-600 text-white',
-          symbol: '$4M',
+          bg: 'bg-[#E8F5E9]', // Olive / Mint green
+          border: 'border-emerald-700',
+          text: 'text-emerald-950',
+          badge: 'bg-emerald-700 text-white',
+          symbol: '₹4 Cr',
+          hindi: 'चार करोड़',
         };
       case 5:
         return {
-          bg: 'bg-[#E1BEE7]',
-          border: 'border-purple-600',
-          text: 'text-purple-950',
-          badge: 'bg-purple-600 text-white',
-          symbol: '$5M',
+          bg: 'bg-[#FCE4EC]', // Magenta pink
+          border: 'border-pink-700',
+          text: 'text-pink-950',
+          badge: 'bg-pink-700 text-white',
+          symbol: '₹5 Cr',
+          hindi: 'पाँच करोड़',
         };
       case 10:
         return {
-          bg: 'bg-[#FFCDD2]',
-          border: 'border-red-700',
-          text: 'text-red-950',
-          badge: 'bg-red-700 text-white',
-          symbol: '$10M',
+          bg: 'bg-[#FFF8E1]', // Royal Gold
+          border: 'border-amber-700',
+          text: 'text-amber-950',
+          badge: 'bg-amber-700 text-white',
+          symbol: '₹10 Cr',
+          hindi: 'दस करोड़',
         };
       default:
         return {
-          bg: 'bg-[#E0F2F1]',
-          border: 'border-teal-600',
-          text: 'text-teal-950',
-          badge: 'bg-teal-600 text-white',
-          symbol: `$${val}M`,
+          bg: 'bg-[#F1F5F9]',
+          border: 'border-slate-700',
+          text: 'text-slate-950',
+          badge: 'bg-slate-700 text-white',
+          symbol: `₹${val} Cr`,
+          hindi: `${val} करोड़`,
         };
     }
   };
@@ -254,30 +262,31 @@ export const CardView: React.FC<CardViewProps> = ({
     >
       {/* =========================================================================
           AUTHENTIC VALUE CIRCLE STAMPS (Top-Left and Bottom-Right)
-          In original Monopoly Deal, every single card has these distinct circles!
           ========================================================================= */}
       <div
-        className={`absolute z-20 flex items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-stone-950 font-mono
-          ${size === 'xs' ? 'top-1 left-1 w-5 h-5 text-[7px]' : size === 'sm' ? 'top-1 left-1 w-6 h-6 text-[8px]' : 'top-1.5 left-1.5 w-7 h-7 text-[10px]'}
+        className={`absolute z-20 flex flex-col items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-stone-950 font-mono leading-none
+          ${size === 'xs' ? 'top-0.5 left-0.5 w-5 h-5 text-[6.5px]' : size === 'sm' ? 'top-1 left-1 w-6 h-6 text-[8px]' : 'top-1.5 left-1.5 w-7 h-7 text-[9.5px]'}
         `}
       >
-        ${card.value}M
+        <span>₹{card.value}</span>
+        <span className="text-[5px] sm:text-[6px] tracking-tighter text-stone-700 font-sans font-bold leading-none">Cr</span>
       </div>
 
       {size !== 'xs' && (
         <div
-          className={`absolute z-20 flex items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-stone-950 font-mono
-            ${size === 'sm' ? 'bottom-1 right-1 w-5 h-5 text-[7px]' : 'bottom-1.5 right-1.5 w-6 h-6 text-[9px]'}
+          className={`absolute z-20 flex flex-col items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-stone-950 font-mono leading-none
+            ${size === 'sm' ? 'bottom-0.5 right-0.5 w-5 h-5 text-[7px]' : 'bottom-1 right-1 w-6 h-6 text-[8.5px]'}
           `}
         >
-          ${card.value}M
+          <span>₹{card.value}</span>
+          <span className="text-[5px] sm:text-[6px] tracking-tighter text-stone-700 font-sans font-bold leading-none">Cr</span>
         </div>
       )}
 
       {/* =========================================================================
           1. PROPERTY CARDS
           Instant recognition: Large vibrant colored rectangle banner at top,
-          prominent title, set counter dots, and classic Monopoly rent chart!
+          prominent Indian monument name, city tag, monument vector visual, and rent chart!
           ========================================================================= */}
       {card.type === 'property' && colorMeta && (
         <div className="h-full flex flex-col justify-between bg-[#FCFBF8]">
@@ -285,32 +294,40 @@ export const CardView: React.FC<CardViewProps> = ({
           <div
             style={{ backgroundColor: colorMeta.colorHex }}
             className={`flex flex-col items-center justify-center text-center shadow border-b-2 border-stone-900 ${colorMeta.textColor}
-              ${size === 'xs' ? 'h-8 pt-0.5' : size === 'sm' ? 'h-10 pt-1' : 'h-13 pt-1.5'}
+              ${size === 'xs' ? 'h-8 pt-0.5' : size === 'sm' ? 'h-10 pt-0.5' : 'h-13 pt-1'}
             `}
           >
-            <div className="text-[6px] font-black uppercase tracking-widest opacity-80 leading-none">
-              PROPERTY
+            <div className="text-[5.5px] sm:text-[6.5px] font-black uppercase tracking-widest opacity-90 leading-none">
+              {card.cityName || colorMeta.city}
             </div>
             <div
-              className={`font-black uppercase tracking-tight truncate w-full px-1 drop-shadow-sm
+              className={`font-black uppercase tracking-tight truncate w-full px-1 drop-shadow-sm leading-tight
                 ${size === 'xs' ? 'text-[7px]' : size === 'sm' ? 'text-[9px]' : 'text-[10px]'}
               `}
+              title={card.name}
             >
               {card.name}
             </div>
           </div>
 
-          {/* Center Graphic: Icon & Set Progress Circles */}
-          <div className="flex-1 flex flex-col items-center justify-center p-1 text-center">
-            {colorMeta.name === 'Railroad' ? (
+          {/* Center Graphic: Monument Illustration & Set Progress Circles */}
+          <div className="flex-1 flex flex-col items-center justify-center p-0.5 text-center min-h-0">
+            {card.landmarkId ? (
+              <div className="flex items-center justify-center my-0.5">
+                <LandmarkIcon
+                  id={card.landmarkId}
+                  className={`${size === 'xs' ? 'w-6 h-6' : size === 'sm' ? 'w-8 h-8' : 'w-10 h-10'} drop-shadow-sm`}
+                />
+              </div>
+            ) : colorMeta.name === 'Indian Railways' ? (
               <Train className={`${size === 'xs' ? 'w-4 h-4' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8'} text-stone-800 mb-0.5`} />
-            ) : colorMeta.name === 'Utility' ? (
+            ) : colorMeta.name === 'Clean Energy' ? (
               <Lightbulb className={`${size === 'xs' ? 'w-4 h-4' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8'} text-stone-800 mb-0.5`} />
             ) : (
               <Building2 className={`${size === 'xs' ? 'w-4 h-4' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8'} text-stone-700 mb-0.5`} />
             )}
 
-            <div className="text-[8px] font-black uppercase tracking-wider text-stone-800">
+            <div className="text-[7px] sm:text-[8px] font-black uppercase tracking-wider text-stone-800 leading-none truncate max-w-full px-1">
               {colorMeta.name}
             </div>
 
@@ -320,7 +337,7 @@ export const CardView: React.FC<CardViewProps> = ({
                 <div
                   key={i}
                   style={{ backgroundColor: colorMeta.colorHex }}
-                  className="w-2 h-2 rounded-full border border-stone-800 shadow-xs"
+                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full border border-stone-800 shadow-xs"
                 />
               ))}
             </div>
@@ -328,15 +345,15 @@ export const CardView: React.FC<CardViewProps> = ({
 
           {/* Rent Schedule Box */}
           {showRentTable && (
-            <div className="mx-1 mb-1 bg-white border border-stone-400 rounded-md p-1 shadow-inner text-stone-900">
-              <div className="text-center font-black text-[6px] uppercase tracking-wider border-b border-stone-200 pb-0.5 text-stone-500">
+            <div className="mx-1 mb-1 bg-white border border-stone-400 rounded-md p-0.5 sm:p-1 shadow-inner text-stone-900">
+              <div className="text-center font-black text-[5.5px] sm:text-[6px] uppercase tracking-wider border-b border-stone-200 pb-0.5 text-stone-500">
                 RENT
               </div>
-              <div className="space-y-0.2 pt-0.5 text-[7px] sm:text-[8px] font-bold">
+              <div className="space-y-0.2 pt-0.5 text-[6.5px] sm:text-[8px] font-bold">
                 {colorMeta.rentTiers.map((rent, i) => (
                   <div key={i} className="flex justify-between items-center px-1 text-stone-700 leading-tight">
                     <span>{i + 1} {i === 0 ? 'Card' : 'Cards'}</span>
-                    <span className="font-black text-stone-950 font-mono">${rent}M</span>
+                    <span className="font-black text-stone-950 font-mono">₹{rent} Cr</span>
                   </div>
                 ))}
               </div>
@@ -419,28 +436,42 @@ export const CardView: React.FC<CardViewProps> = ({
       )}
 
       {/* =========================================================================
-          3. MONEY CARDS
-          Instant recognition: Large bold central banknote oval with huge $XM
+          3. MONEY CARDS - RESERVE BANK OF DEALBREAKER
+          Instant recognition: Indian banknote styling, Ashoka emblem or watermark style,
+          bold ₹X Cr denomination, and RBI promise text!
           ========================================================================= */}
       {card.type === 'money' && (() => {
         const m = getMoneyColor(card.value);
         return (
-          <div className={`h-full flex flex-col justify-between p-1.5 ${m.bg}`}>
-            <div className={`border-2 ${m.border} border-dashed rounded-lg h-full flex flex-col justify-between p-1 items-center bg-white/70 shadow-inner`}>
-              <div className="text-[6px] font-black uppercase tracking-widest text-stone-600 pt-0.5">
-                DEALBREAKER CASH
+          <div className={`h-full flex flex-col justify-between p-1 sm:p-1.5 ${m.bg}`}>
+            <div className={`border-2 ${m.border} border-dashed rounded-lg h-full flex flex-col justify-between p-1 items-center bg-white/80 shadow-inner relative overflow-hidden`}>
+              {/* Note Header */}
+              <div className="text-center w-full pt-0.5 border-b border-stone-300 pb-0.5">
+                <div className="text-[5px] sm:text-[6px] font-black uppercase tracking-widest text-stone-700 leading-none">
+                  RESERVE BANK OF DEALBREAKER
+                </div>
+                <div className="text-[4.5px] sm:text-[5px] font-bold text-stone-500 tracking-tight">
+                  GUARANTEED BY CENTRAL BANK
+                </div>
               </div>
 
-              {/* Central Banknote Oval with HUGE denomination */}
-              <div className={`w-14 sm:w-16 h-14 sm:h-16 rounded-full border-2 ${m.border} flex flex-col items-center justify-center bg-white shadow-md my-auto`}>
-                <span className={`font-black font-mono tracking-tighter ${m.text} ${size === 'xs' ? 'text-lg' : size === 'sm' ? 'text-2xl' : 'text-3xl'} leading-none`}>
-                  ${card.value}M
+              {/* Central Banknote Medallion with HUGE ₹X Cr */}
+              <div className={`w-12 sm:w-16 h-12 sm:h-16 rounded-full border-2 ${m.border} flex flex-col items-center justify-center bg-white shadow-md my-auto relative`}>
+                <div className="text-[5px] sm:text-[6px] font-bold text-stone-500 uppercase tracking-tighter">
+                  {m.hindi}
+                </div>
+                <span className={`font-black font-mono tracking-tighter ${m.text} ${size === 'xs' ? 'text-sm' : size === 'sm' ? 'text-lg' : 'text-xl'} leading-none`}>
+                  ₹{card.value}
+                </span>
+                <span className="text-[6.5px] sm:text-[7.5px] font-black uppercase tracking-wider text-stone-700 font-sans">
+                  CRORE
                 </span>
               </div>
 
-              <div className="w-full text-center pb-0.5">
-                <span className={`text-[6px] font-black uppercase px-2 py-0.5 rounded-full ${m.badge} shadow-xs`}>
-                  BANK DEPOSIT ONLY
+              {/* Note Footer */}
+              <div className="w-full text-center pb-0.5 border-t border-stone-200 pt-0.5">
+                <span className={`text-[5px] sm:text-[6px] font-black uppercase px-1.5 py-0.2 rounded-full ${m.badge} shadow-xs inline-block`}>
+                  BANK CASH ONLY
                 </span>
               </div>
             </div>
