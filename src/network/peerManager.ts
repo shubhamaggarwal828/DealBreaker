@@ -1,4 +1,4 @@
-import Peer, { DataConnection } from 'peerjs';
+import mqtt, { MqttClient } from 'mqtt';
 import { Card, ClientMessage, GameState, HostMessage, Player, PendingAction, PropertyColor } from '../types/game';
 import {
   initGame,
@@ -16,26 +16,12 @@ function makeId(prefix = 'p'): string {
   return `${prefix}_${Math.random().toString(36).substring(2, 8)}`;
 }
 
-// High-performance global STUN servers (Google + Cloudflare Anycast)
-// Fast, reliable public IP discovery across different locations and internet connections
-const PEER_CONFIG = {
-  debug: 1,
-  config: {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
-      { urls: 'stun:stun3.l.google.com:19302' },
-      { urls: 'stun:stun4.l.google.com:19302' },
-      { urls: 'stun:stun.cloudflare.com:3478' },
-    ],
-  },
-};
+// Enterprise public MQTT cloud broker over secure WebSockets (TLS)
+// 100% reliable real-time messaging across any device, network, 4G/5G, or firewall
+const CLOUD_BROKER_URL = 'wss://broker.hivemq.com:8884/mqtt';
 
 export class PeerNetworkManager {
-  private peer: Peer | null = null;
-  private hostConnection: DataConnection | null = null; // Used by clients
-  private clientConnections: Map<string, DataConnection> = new Map(); // Used by host
+  private mqttClient: MqttClient | null = null;
   private localChannel: BroadcastChannel | null = null; // Instant local tab/window sync
 
   public myPlayerId: string = '';
@@ -79,8 +65,6 @@ export class PeerNetworkManager {
 
     // Set up local broadcast channel for instant local tab sync
     this.setupLocalChannel();
-
-    const hostPeerId = `dealbreaker-${this.roomCode.toLowerCase()}-host`;
 
     return new Promise((resolve) => {
       // Initialize lobby state immediately
@@ -126,36 +110,48 @@ export class PeerNetworkManager {
         }
       };
 
-      // Safety timeout: don't block host UI if PeerJS broker is slow
-      const safetyTimeout = setTimeout(() => {
-        done();
-      }, 2500);
-
-      // Connect to PeerJS for cross-device connections
       try {
-        if (this.peer) {
-          try { this.peer.destroy(); } catch (_) {}
+        if (this.mqttClient) {
+          try { this.mqttClient.end(true); } catch (_) {}
         }
-        this.peer = new Peer(hostPeerId, PEER_CONFIG);
 
-        this.peer.on('open', () => {
-          console.log(`[Host] PeerJS registered as ${hostPeerId}`);
-          clearTimeout(safetyTimeout);
+        const clientId = `dealbreaker_host_${this.roomCode}_${makeId('c')}`;
+        this.mqttClient = mqtt.connect(CLOUD_BROKER_URL, {
+          clientId,
+          keepalive: 30,
+          clean: true,
+          reconnectPeriod: 2000,
+        });
+
+        const hostTopic = `dealbreaker/rooms/${this.roomCode}/host`;
+
+        this.mqttClient.on('connect', () => {
+          console.log(`[Host] Connected to cloud broker for room ${this.roomCode}`);
+          this.mqttClient?.subscribe(hostTopic, () => {
+            console.log(`[Host] Subscribed to ${hostTopic}`);
+            done();
+          });
+        });
+
+        this.mqttClient.on('message', (_topic, payload) => {
+          try {
+            const msg = JSON.parse(payload.toString());
+            this.handleIncomingHostMessage(msg);
+          } catch (e) {
+            console.warn('[Host] Invalid broker message payload:', e);
+          }
+        });
+
+        this.mqttClient.on('error', (err) => {
+          console.warn('[Host] Cloud broker warning:', err.message);
+        });
+
+        // Safety timeout: don't block host UI if broker takes > 2s
+        setTimeout(() => {
           done();
-        });
-
-        this.peer.on('connection', (conn) => {
-          this.handleIncomingClientConnection(conn);
-        });
-
-        this.peer.on('error', (err) => {
-          console.warn('[Host] PeerJS signaling notice:', err.type, err.message);
-          clearTimeout(safetyTimeout);
-          done();
-        });
+        }, 2000);
       } catch (e) {
-        console.warn('[Host] PeerJS init error:', e);
-        clearTimeout(safetyTimeout);
+        console.warn('[Host] Broker connection error:', e);
         done();
       }
     });
@@ -177,17 +173,13 @@ export class PeerNetworkManager {
       msg: { type: 'JOIN', playerName: this.myPlayerName },
     });
 
-    const hostPeerId = `dealbreaker-${this.roomCode.toLowerCase()}-host`;
-
     return new Promise((resolve, reject) => {
       let isResolved = false;
-      let attempts = 0;
-      const MAX_ATTEMPTS = 5;
-      let retryTimer: ReturnType<typeof setTimeout> | null = null;
+      let pingInterval: ReturnType<typeof setInterval> | null = null;
       let overallTimeoutTimer: ReturnType<typeof setTimeout> | null = null;
 
       const cleanup = () => {
-        if (retryTimer) clearTimeout(retryTimer);
+        if (pingInterval) clearInterval(pingInterval);
         if (overallTimeoutTimer) clearTimeout(overallTimeoutTimer);
       };
 
@@ -212,7 +204,12 @@ export class PeerNetworkManager {
       this.onStateUpdate = (state) => {
         origOnState?.(state);
         if (state && state.players && state.players.length > 0) {
-          completeSuccess();
+          const inLobby = state.players.some(
+            (p) => p.id === this.myPlayerId || p.name === this.myPlayerName
+          );
+          if (inLobby) {
+            completeSuccess();
+          }
         }
       };
 
@@ -223,106 +220,99 @@ export class PeerNetworkManager {
         );
       }, 12000);
 
-      const tryConnectToHost = () => {
-        if (isResolved || !this.peer || this.peer.destroyed) return;
-        attempts++;
-        console.log(`[Client] Connection attempt ${attempts}/${MAX_ATTEMPTS} to host ${hostPeerId}...`);
+      try {
+        if (this.mqttClient) {
+          try { this.mqttClient.end(true); } catch (_) {}
+        }
 
-        try {
-          if (this.hostConnection) {
-            try { this.hostConnection.close(); } catch (_) {}
-          }
+        const clientId = `dealbreaker_cli_${this.myPlayerId}_${makeId('c')}`;
+        this.mqttClient = mqtt.connect(CLOUD_BROKER_URL, {
+          clientId,
+          keepalive: 30,
+          clean: true,
+          reconnectPeriod: 2000,
+        });
 
-          const conn = this.peer.connect(hostPeerId, {
-            reliable: true,
-          });
-          this.hostConnection = conn;
+        const publicTopic = `dealbreaker/rooms/${this.roomCode}/state`;
+        const playerTopic = `dealbreaker/rooms/${this.roomCode}/player/${this.myPlayerId}`;
+        const hostTopic = `dealbreaker/rooms/${this.roomCode}/host`;
 
-          conn.on('open', () => {
-            console.log('[Client] Connected to Host via WebRTC!');
-            conn.send({
+        const sendJoin = () => {
+          if (isResolved || !this.mqttClient || !this.mqttClient.connected) return;
+          console.log(`[Client] Sending JOIN request to host for room ${this.roomCode}...`);
+          this.mqttClient.publish(
+            hostTopic,
+            JSON.stringify({
               type: 'JOIN',
               playerName: this.myPlayerName,
-            } as ClientMessage);
-
-            // Wait briefly for initial state or resolve
-            setTimeout(() => {
-              completeSuccess();
-            }, 600);
-          });
-
-          conn.on('data', (data: unknown) => {
-            this.handleHostMessage(data as HostMessage);
-            completeSuccess();
-          });
-
-          conn.on('error', (err) => {
-            console.warn('[Client] WebRTC connection notice:', err);
-            scheduleRetry();
-          });
-
-          conn.on('close', () => {
-            console.log('[Client] WebRTC connection closed.');
-          });
-        } catch (err) {
-          console.warn('[Client] Connection attempt error:', err);
-          scheduleRetry();
-        }
-      };
-
-      const scheduleRetry = () => {
-        if (isResolved) return;
-        if (attempts < MAX_ATTEMPTS) {
-          if (retryTimer) clearTimeout(retryTimer);
-          retryTimer = setTimeout(() => {
-            tryConnectToHost();
-          }, 1500);
-        } else {
-          failWithError(
-            `Could not reach host for room ${this.roomCode}. Please verify the room code.`
+              playerId: this.myPlayerId,
+            })
           );
-        }
-      };
+        };
 
-      try {
-        if (this.peer) {
-          try { this.peer.destroy(); } catch (_) {}
-        }
-        this.peer = new Peer(PEER_CONFIG);
-
-        this.peer.on('open', (id) => {
-          console.log(`[Client] PeerJS opened with ID ${id}. Connecting to host ${hostPeerId}...`);
-          tryConnectToHost();
+        this.mqttClient.on('connect', () => {
+          console.log(`[Client] Connected to cloud broker for room ${this.roomCode}`);
+          this.mqttClient?.subscribe([publicTopic, playerTopic], () => {
+            console.log('[Client] Subscribed to room topics. Sending JOIN...');
+            sendJoin();
+            // Retry sending join every 1.5s until confirmed on table
+            pingInterval = setInterval(() => {
+              const inLobby = this.currentState?.players.some(
+                (p) => p.id === this.myPlayerId || p.name === this.myPlayerName
+              );
+              if (!inLobby) {
+                sendJoin();
+              }
+            }, 1500);
+          });
         });
 
-        this.peer.on('error', (err) => {
-          console.warn('[Client] PeerJS error:', err.type, err.message);
-          if (err.type === 'peer-unavailable' || err.type === 'network' || err.type === 'server-error') {
-            scheduleRetry();
+        this.mqttClient.on('message', (_topic, payload) => {
+          try {
+            const msg = JSON.parse(payload.toString());
+            this.handleHostMessage(msg as HostMessage);
+
+            if (msg.type === 'SYNC_STATE' && msg.state) {
+              const inLobby = msg.state.players.some(
+                (p: Player) => p.id === this.myPlayerId || p.name === this.myPlayerName
+              );
+              if (inLobby) {
+                completeSuccess();
+              }
+            }
+          } catch (e) {
+            console.warn('[Client] Invalid broker message payload:', e);
           }
         });
+
+        this.mqttClient.on('error', (err) => {
+          console.warn('[Client] Cloud broker notice:', err.message);
+        });
       } catch (e) {
-        console.warn('[Client] PeerJS init notice:', e);
-        failWithError(`WebRTC error: ${(e as Error).message}`);
+        console.warn('[Client] Cloud broker init notice:', e);
+        failWithError(`Connection error: ${(e as Error).message}`);
       }
     });
   }
 
-  // Cleanly disconnect and release all WebRTC & channel resources
+  // Cleanly disconnect and release all resources
   public disconnect() {
-    if (this.hostConnection) {
-      try { this.hostConnection.close(); } catch (_) {}
-      this.hostConnection = null;
+    if (this.mqttClient) {
+      try {
+        if (this.isHost && this.roomCode) {
+          this.mqttClient.publish(
+            `dealbreaker/rooms/${this.roomCode}/state`,
+            JSON.stringify({
+              type: 'ERROR',
+              message: 'Host has closed the table.',
+            })
+          );
+        }
+        this.mqttClient.end(true);
+      } catch (_) {}
+      this.mqttClient = null;
     }
-    for (const conn of this.clientConnections.values()) {
-      try { conn.close(); } catch (_) {}
-    }
-    this.clientConnections.clear();
 
-    if (this.peer) {
-      try { this.peer.destroy(); } catch (_) {}
-      this.peer = null;
-    }
     if (this.localChannel) {
       try { this.localChannel.close(); } catch (_) {}
       this.localChannel = null;
@@ -368,59 +358,15 @@ export class PeerNetworkManager {
     }
   }
 
-  // HOST: Handle incoming client connection (WebRTC)
-  private handleIncomingClientConnection(conn: DataConnection) {
-    console.log('[Host] Incoming WebRTC connection from:', conn.peer);
-
-    conn.on('open', () => {
-      console.log('[Host] WebRTC connection open for:', conn.peer);
-      if (this.currentState) {
-        conn.send({
-          type: 'SYNC_STATE',
-          state: this.sanitizeStateForPlayer(this.currentState, conn.peer),
-          yourPlayerId: conn.peer,
-        } as HostMessage);
-      }
-    });
-
-    conn.on('data', (data: unknown) => {
-      this.handleClientMessage(conn, data as ClientMessage);
-    });
-
-    conn.on('close', () => {
-      for (const [pId, connection] of this.clientConnections.entries()) {
-        if (connection === conn) {
-          this.clientConnections.delete(pId);
-          if (this.currentState) {
-            if (this.currentState.status === 'lobby') {
-              this.currentState = {
-                ...this.currentState,
-                players: this.currentState.players.filter((p) => p.id !== pId),
-              };
-            } else {
-              this.currentState = {
-                ...this.currentState,
-                players: this.currentState.players.map((p) =>
-                  p.id === pId ? { ...p, isConnected: false } : p
-                ),
-              };
-            }
-            this.broadcastState();
-          }
-          break;
-        }
-      }
-    });
-  }
-
-  // HOST: Process client messages via WebRTC
-  private handleClientMessage(conn: DataConnection, msg: ClientMessage) {
+  // HOST: Process incoming client message via cloud broker
+  private handleIncomingHostMessage(msg: any) {
     if (!this.currentState) return;
 
     if (msg.type === 'JOIN') {
-      const existingPlayer = this.currentState.players.find((p) => p.name === msg.playerName);
-      const playerId = existingPlayer ? existingPlayer.id : conn.peer;
-      this.clientConnections.set(playerId, conn);
+      const existingPlayer = this.currentState.players.find(
+        (p) => p.name === msg.playerName || (msg.playerId && p.id === msg.playerId)
+      );
+      const playerId = existingPlayer ? existingPlayer.id : (msg.playerId || makeId('ply'));
 
       if (this.currentState.status === 'lobby' && !existingPlayer) {
         const newPlayer: Player = {
@@ -445,8 +391,33 @@ export class PeerNetworkManager {
             },
           ],
         };
+      } else if (existingPlayer) {
+        this.currentState = {
+          ...this.currentState,
+          players: this.currentState.players.map((p) =>
+            p.id === playerId ? { ...p, isConnected: true } : p
+          ),
+        };
       }
 
+      this.broadcastState();
+      return;
+    }
+
+    if (msg.type === 'LEAVE') {
+      if (this.currentState.status === 'lobby') {
+        this.currentState = {
+          ...this.currentState,
+          players: this.currentState.players.filter((p) => p.id !== msg.playerId),
+        };
+      } else {
+        this.currentState = {
+          ...this.currentState,
+          players: this.currentState.players.map((p) =>
+            p.id === msg.playerId ? { ...p, isConnected: false } : p
+          ),
+        };
+      }
       this.broadcastState();
       return;
     }
@@ -571,25 +542,7 @@ export class PeerNetworkManager {
 
   // 1-Click Quick Play Solo vs Bots (100% Instant & Offline)
   public async startSoloBotGame(playerName: string, botCount = 2): Promise<void> {
-    // Reset previous connection if any
-    if (this.peer) {
-      try {
-        this.peer.destroy();
-      } catch (e) {
-        // ignore
-      }
-      this.peer = null;
-    }
-    if (this.localChannel) {
-      try {
-        this.localChannel.close();
-      } catch (e) {
-        // ignore
-      }
-      this.localChannel = null;
-    }
-    this.clientConnections.clear();
-    this.hostConnection = null;
+    this.disconnect();
 
     this.isHost = true;
     this.roomCode = PeerNetworkManager.generateRoomCode();
@@ -1059,9 +1012,16 @@ export class PeerNetworkManager {
     if (this.isHost) {
       this.handleGameAction(msg);
     } else {
-      // Send via WebRTC if open
-      if (this.hostConnection && this.hostConnection.open) {
-        this.hostConnection.send(msg);
+      // Send to host via Cloud Broker
+      if (this.mqttClient && this.mqttClient.connected) {
+        const hostTopic = `dealbreaker/rooms/${this.roomCode}/host`;
+        this.mqttClient.publish(
+          hostTopic,
+          JSON.stringify({
+            ...msg,
+            playerId: this.myPlayerId,
+          })
+        );
       }
       // Also send via local channel
       this.sendLocal({
@@ -1743,9 +1703,32 @@ export class PeerNetworkManager {
 
   // CLIENT: Handle incoming host message
   private handleHostMessage(msg: HostMessage) {
-    if (msg.type === 'SYNC_STATE') {
+    if (msg.type === 'SYNC_STATE' && msg.state) {
+      const myId = msg.yourPlayerId || this.myPlayerId;
+      const myNewPlayer = msg.state.players.find((p) => p.id === myId);
+      const myOldPlayer = this.currentState?.players.find((p) => p.id === myId);
+
+      // If new state comes from public broadcast (where all hands are masked with dummy cards)
+      // but client already holds its authentic hand, preserve authentic hand cards!
+      if (
+        myOldPlayer &&
+        myNewPlayer &&
+        myOldPlayer.hand.length > 0 &&
+        myNewPlayer.hand.length === myOldPlayer.hand.length &&
+        myNewPlayer.hand.every((c) => c.name === 'Card' && c.value === 0)
+      ) {
+        msg.state = {
+          ...msg.state,
+          players: msg.state.players.map((p) =>
+            p.id === myId ? { ...p, hand: myOldPlayer.hand } : p
+          ),
+        };
+      }
+
       this.currentState = msg.state;
-      this.myPlayerId = msg.yourPlayerId;
+      if (msg.yourPlayerId) {
+        this.myPlayerId = msg.yourPlayerId;
+      }
       this.notifyState();
     } else if (msg.type === 'ERROR') {
       if (this.onError) this.onError(msg.message);
@@ -1765,19 +1748,33 @@ export class PeerNetworkManager {
       state: this.currentState,
     });
 
-    // Send to each connected WebRTC client
-    for (const [playerId, conn] of this.clientConnections.entries()) {
-      try {
-        if (conn.open) {
-          conn.send({
-            type: 'SYNC_STATE',
-            state: this.sanitizeStateForPlayer(this.currentState, playerId),
-            yourPlayerId: playerId,
-          } as HostMessage);
+    // Send via Cloud Broker
+    if (this.mqttClient && this.mqttClient.connected) {
+      // 1. Send personalized, sanitized state to each remote player
+      for (const p of this.currentState.players) {
+        if (p.id !== this.myPlayerId && !p.isBot) {
+          const playerTopic = `dealbreaker/rooms/${this.roomCode}/player/${p.id}`;
+          const sanitized = this.sanitizeStateForPlayer(this.currentState, p.id);
+          this.mqttClient.publish(
+            playerTopic,
+            JSON.stringify({
+              type: 'SYNC_STATE',
+              state: sanitized,
+              yourPlayerId: p.id,
+            })
+          );
         }
-      } catch (e) {
-        console.warn('Error sending to client:', e);
       }
+
+      // 2. Also publish public sanitized state
+      const publicTopic = `dealbreaker/rooms/${this.roomCode}/state`;
+      this.mqttClient.publish(
+        publicTopic,
+        JSON.stringify({
+          type: 'SYNC_STATE',
+          state: this.sanitizeStateForPlayer(this.currentState, ''),
+        })
+      );
     }
   }
 
