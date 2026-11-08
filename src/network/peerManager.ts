@@ -16,29 +16,18 @@ function makeId(prefix = 'p'): string {
   return `${prefix}_${Math.random().toString(36).substring(2, 8)}`;
 }
 
-// Google STUN + OpenRelay TURN servers for robust peer-to-peer WebRTC connections
-// Works reliably across mobile cellular data (LTE/5G), firewalls, and symmetric NAT
+// High-performance global STUN servers (Google + Cloudflare Anycast)
+// Fast, reliable public IP discovery across different locations and internet connections
 const PEER_CONFIG = {
+  debug: 1,
   config: {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:openrelay.metered.ca:80' },
-      {
-        urls: 'turn:openrelay.metered.ca:80',
-        username: 'openrelayproject',
-        credential: 'openrelayproject',
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443',
-        username: 'openrelayproject',
-        credential: 'openrelayproject',
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-        username: 'openrelayproject',
-        credential: 'openrelayproject',
-      },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' },
+      { urls: 'stun:stun.cloudflare.com:3478' },
     ],
   },
 };
