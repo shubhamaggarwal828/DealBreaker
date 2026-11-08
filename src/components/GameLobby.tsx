@@ -201,7 +201,7 @@ export const GameLobby: React.FC<GameLobbyProps> = ({
             <div className="pt-4 border-t border-slate-800/80 text-center">
               <div className="text-[11px] text-slate-500 flex items-center justify-center gap-1.5">
                 <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                <span>P2P WebRTC — 100% Free & No Account Needed</span>
+                <span>Realtime Multiplayer — 100% Free & No Account Needed</span>
               </div>
             </div>
           </div>
@@ -224,7 +224,7 @@ export const GameLobby: React.FC<GameLobbyProps> = ({
                     {roomCode}
                   </div>
                   <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-                    Establishing peer-to-peer connection with the host. Please wait a moment...
+                    Connecting to the host table. Please wait a moment...
                   </p>
                 </div>
                 {onCancelJoin && (
