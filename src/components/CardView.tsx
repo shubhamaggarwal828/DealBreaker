@@ -15,7 +15,6 @@ import {
   HandCoins,
   Gift,
   ArrowRightLeft,
-  XCircle,
   Train,
   Lightbulb,
 } from 'lucide-react';
@@ -41,10 +40,10 @@ export const CardView: React.FC<CardViewProps> = ({
 }) => {
   // Dimensions matching real card proportions (approx 2.5 x 3.5 ratio)
   const sizeClasses = {
-    xs: 'w-[70px] h-[100px] rounded-lg text-[8px]',
-    sm: 'w-[90px] h-[128px] rounded-xl text-[9px]',
-    md: 'w-[114px] h-[162px] rounded-xl text-[10px]',
-    lg: 'w-[145px] h-[206px] rounded-2xl text-[11px]',
+    xs: 'w-[76px] h-[108px] rounded-lg text-[8px]',
+    sm: 'w-[100px] h-[142px] rounded-xl text-[9px]',
+    md: 'w-[128px] h-[182px] rounded-xl text-[10px]',
+    lg: 'w-[154px] h-[220px] rounded-2xl text-[11px]',
   }[size];
 
   const effectiveColor = activeColor || card.mainColor;
@@ -246,15 +245,15 @@ export const CardView: React.FC<CardViewProps> = ({
     }
   };
 
-  // Dynamic font sizing for landmark names to prevent any text clipping
+  // Dynamic font sizing for landmark names to prevent any text clipping across full-width banner
   const getLandmarkNameClass = (name: string) => {
-    if (name.length > 18) {
-      return size === 'xs' ? 'text-[5.5px]' : size === 'sm' ? 'text-[7px]' : 'text-[8.5px]';
+    if (name.length > 20) {
+      return size === 'xs' ? 'text-[5.5px]' : size === 'sm' ? 'text-[7.5px]' : 'text-[9px]';
     }
-    if (name.length > 12) {
-      return size === 'xs' ? 'text-[6px]' : size === 'sm' ? 'text-[8px]' : 'text-[9.5px]';
+    if (name.length > 14) {
+      return size === 'xs' ? 'text-[6.5px]' : size === 'sm' ? 'text-[8.5px]' : 'text-[9.5px]';
     }
-    return size === 'xs' ? 'text-[7px]' : size === 'sm' ? 'text-[9px]' : 'text-[10.5px]';
+    return size === 'xs' ? 'text-[7.5px]' : size === 'sm' ? 'text-[9.5px]' : 'text-[11px]';
   };
 
   return (
@@ -273,37 +272,42 @@ export const CardView: React.FC<CardViewProps> = ({
     >
       {/* =========================================================================
           1. PROPERTY CARDS
-          Instant recognition: Header with value badge & city landmark title,
-          monument vector artwork, and clean unobstructed rent schedule!
+          Instant recognition: Header with value badge & city tag on top,
+          full-width landmark title, monument vector illustration, and clean rent table!
           ========================================================================= */}
       {card.type === 'property' && colorMeta && (
         <div className="h-full flex flex-col justify-between bg-[#FCFBF8]">
-          {/* Top Property Header with Integrated Value Badge */}
+          {/* Top Property Header with Integrated Value Badge & City/Landmark Layout */}
           <div
             style={{ backgroundColor: colorMeta.colorHex }}
-            className={`flex items-center shadow border-b-2 border-stone-900 ${colorMeta.textColor} flex-shrink-0
-              ${size === 'xs' ? 'h-8 px-1 gap-1' : size === 'sm' ? 'h-10.5 px-1.5 gap-1.5' : 'h-13 px-2 gap-2'}
+            className={`flex flex-col justify-between shadow border-b-2 border-stone-900 ${colorMeta.textColor} flex-shrink-0
+              ${size === 'xs' ? 'h-[30px] p-0.5' : size === 'sm' ? 'h-[38px] p-1' : size === 'md' ? 'h-[46px] p-1' : 'h-[54px] p-1.5'}
             `}
           >
-            {/* Top-Left Value Stamp */}
-            <div
-              className={`flex flex-col items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-stone-950 font-mono flex-shrink-0
-                ${size === 'xs' ? 'w-5 h-5 text-[6.5px]' : size === 'sm' ? 'w-6 h-6 text-[8px]' : 'w-7 h-7 text-[9.5px]'}
-              `}
-            >
-              <span>₹{card.value}</span>
-              <span className="text-[5px] sm:text-[5.5px] tracking-tighter text-stone-600 font-sans font-bold leading-none">Cr</span>
-            </div>
+            {/* Top Row: Left Value Badge & Right City Tag */}
+            <div className="flex items-center justify-between w-full leading-none">
+              <div
+                className={`flex items-center justify-center font-black rounded-full shadow-xs border border-stone-900 bg-white text-stone-950 flex-shrink-0
+                  ${size === 'xs' ? 'px-1 py-0.2 text-[6.5px]' : size === 'sm' ? 'px-1.5 py-0.5 text-[7.5px]' : 'px-1.5 py-0.5 text-[8.5px]'}
+                `}
+              >
+                <span>₹{card.value}</span>
+                <span className="text-[5px] sm:text-[5.5px] text-stone-600 font-sans font-bold ml-0.5">Cr</span>
+              </div>
 
-            {/* City & Landmark Title Block */}
-            <div className="flex-1 min-w-0 flex flex-col justify-center text-center">
-              <div className={`font-black uppercase tracking-widest opacity-90 truncate leading-none
-                ${size === 'xs' ? 'text-[5px]' : size === 'sm' ? 'text-[6px]' : 'text-[7px]'}
-              `}>
+              <div
+                className={`font-black uppercase tracking-wide opacity-90 truncate text-right drop-shadow-xs
+                  ${size === 'xs' ? 'text-[5px] max-w-[46px]' : size === 'sm' ? 'text-[6px] max-w-[60px]' : 'text-[7px] max-w-[80px]'}
+                `}
+              >
                 {card.cityName || colorMeta.city}
               </div>
+            </div>
+
+            {/* Bottom Row: Landmark Title centered across FULL width */}
+            <div className="w-full text-center flex items-center justify-center min-w-0">
               <div
-                className={`font-black uppercase tracking-tight leading-tight line-clamp-2 drop-shadow-sm ${getLandmarkNameClass(card.name)}`}
+                className={`font-black uppercase tracking-tight leading-tight line-clamp-2 drop-shadow-sm px-0.5 break-words ${getLandmarkNameClass(card.name)}`}
                 title={card.name}
               >
                 {card.name}
@@ -317,10 +321,10 @@ export const CardView: React.FC<CardViewProps> = ({
               <div className="flex items-center justify-center my-0.5">
                 <LandmarkIcon
                   id={card.landmarkId}
-                  className={`${size === 'xs' ? 'w-6 h-6' : size === 'sm' ? 'w-8 h-8' : 'w-10 h-10'} drop-shadow-sm`}
+                  className={`${size === 'xs' ? 'w-5 h-5' : size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} drop-shadow-sm`}
                 />
               </div>
-            ) : colorMeta.name === 'Indian Railways' ? (
+            ) : colorMeta.name === 'Railroads' ? (
               <Train className={`${size === 'xs' ? 'w-4 h-4' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8'} text-stone-800 mb-0.5`} />
             ) : colorMeta.name === 'Clean Energy' ? (
               <Lightbulb className={`${size === 'xs' ? 'w-4 h-4' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8'} text-stone-800 mb-0.5`} />
@@ -328,7 +332,7 @@ export const CardView: React.FC<CardViewProps> = ({
               <Building2 className={`${size === 'xs' ? 'w-4 h-4' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8'} text-stone-700 mb-0.5`} />
             )}
 
-            <div className="text-[7px] sm:text-[8px] font-black uppercase tracking-wider text-stone-800 leading-none truncate max-w-full px-1">
+            <div className="text-[6.5px] sm:text-[7.5px] font-black uppercase tracking-wider text-stone-800 leading-none truncate max-w-full px-1">
               {colorMeta.name}
             </div>
 
@@ -346,15 +350,19 @@ export const CardView: React.FC<CardViewProps> = ({
 
           {/* Rent Schedule Box */}
           {showRentTable && (
-            <div className="mx-1 mb-1 bg-white border border-stone-400 rounded-md p-0.5 sm:p-1 shadow-inner text-stone-900">
-              <div className="text-center font-black text-[5.5px] sm:text-[6px] uppercase tracking-wider border-b border-stone-200 pb-0.5 text-stone-500">
+            <div className="mx-1 mb-1 bg-white border border-stone-400 rounded-md px-1.5 py-0.5 shadow-inner text-stone-900">
+              <div className="text-center font-black text-[5px] sm:text-[5.5px] md:text-[6px] uppercase tracking-wider border-b border-stone-200 pb-0.5 text-stone-500 leading-none">
                 RENT
               </div>
-              <div className="space-y-0.2 pt-0.5 text-[6.5px] sm:text-[8px] font-bold">
+              <div className="space-y-0.5 pt-0.5 text-[6.5px] sm:text-[7.5px] font-bold">
                 {colorMeta.rentTiers.map((rent, i) => (
-                  <div key={i} className="flex justify-between items-center px-1 text-stone-700 leading-tight">
-                    <span>{i + 1} {i === 0 ? 'Card' : 'Cards'}</span>
-                    <span className="font-black text-stone-950 font-mono">₹{rent} Cr</span>
+                  <div key={i} className="flex justify-between items-center px-0.5 text-stone-700 leading-none">
+                    <span className="font-semibold text-stone-600">
+                      {i + 1} {i === 0 ? 'Card' : 'Cards'}
+                    </span>
+                    <span className="font-black text-stone-950 font-sans tracking-tight">
+                      ₹{rent} Cr
+                    </span>
                   </div>
                 ))}
               </div>
@@ -373,31 +381,31 @@ export const CardView: React.FC<CardViewProps> = ({
             /* Multi-Color 10-Color Wildcard */
             <>
               <div
-                className={`h-8 sm:h-10.5 bg-gradient-to-r from-red-600 via-yellow-500 via-green-600 to-blue-600 flex items-center shadow border-b-2 border-stone-900 flex-shrink-0
-                  ${size === 'xs' ? 'px-1 gap-1' : size === 'sm' ? 'px-1.5 gap-1.5' : 'px-2 gap-2'}
+                className={`bg-gradient-to-r from-red-600 via-yellow-500 via-green-600 to-blue-600 flex items-center shadow border-b-2 border-stone-900 flex-shrink-0
+                  ${size === 'xs' ? 'h-[28px] px-1 gap-1' : size === 'sm' ? 'h-[36px] px-1.5 gap-1' : size === 'md' ? 'h-[44px] px-2 gap-1.5' : 'h-[52px] px-2 gap-2'}
                 `}
               >
                 <div
                   className={`flex items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-amber-500 flex-shrink-0
-                    ${size === 'xs' ? 'w-5 h-5 text-[9px]' : size === 'sm' ? 'w-6 h-6 text-[11px]' : 'w-7 h-7 text-xs'}
+                    ${size === 'xs' ? 'w-4 h-4 text-[8px]' : size === 'sm' ? 'w-5 h-5 text-[10px]' : 'w-6 h-6 text-xs'}
                   `}
                 >
                   ★
                 </div>
-                <div className="flex-1 text-center truncate">
-                  <span className={`text-white font-black tracking-widest uppercase drop-shadow truncate
-                    ${size === 'xs' ? 'text-[6.5px]' : size === 'sm' ? 'text-[8px]' : 'text-[9.5px]'}
+                <div className="flex-1 text-center min-w-0">
+                  <span className={`text-white font-black tracking-wider uppercase drop-shadow leading-tight block
+                    ${size === 'xs' ? 'text-[6px]' : size === 'sm' ? 'text-[7.5px]' : 'text-[9px]'}
                   `}>
-                    ★ 10-COLOR WILD ★
+                    10-COLOR WILD
                   </span>
                 </div>
               </div>
               <div className="flex-1 flex flex-col items-center justify-center p-1 text-center">
-                <Sparkles className={`${size === 'xs' ? 'w-5 h-5' : 'w-9 h-9'} text-amber-500 animate-pulse`} />
-                <div className="font-black text-[9px] uppercase tracking-wide text-stone-900 mt-1">
+                <Sparkles className={`${size === 'xs' ? 'w-5 h-5' : 'w-8 h-8'} text-amber-500 animate-pulse`} />
+                <div className="font-black text-[8px] sm:text-[9px] uppercase tracking-wide text-stone-900 mt-1">
                   ALL-COLOR WILD
                 </div>
-                <div className="text-[7px] text-stone-600 font-bold px-1">
+                <div className="text-[6.5px] sm:text-[7px] text-stone-600 font-bold px-1">
                   Plays as ANY color property!
                 </div>
               </div>
@@ -410,39 +418,39 @@ export const CardView: React.FC<CardViewProps> = ({
             <>
               <div
                 className={`flex border-b-2 border-stone-900 shadow relative items-center flex-shrink-0
-                  ${size === 'xs' ? 'h-8' : size === 'sm' ? 'h-10.5' : 'h-13'}
+                  ${size === 'xs' ? 'h-[28px]' : size === 'sm' ? 'h-[36px]' : size === 'md' ? 'h-[44px]' : 'h-[52px]'}
                 `}
               >
                 {/* Value Stamp floating on top-left */}
                 <div
-                  className={`absolute z-20 flex flex-col items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-stone-950 font-mono flex-shrink-0
-                    ${size === 'xs' ? 'top-1.5 left-1 w-5 h-5 text-[6.5px]' : size === 'sm' ? 'top-2 left-1.5 w-6 h-6 text-[8px]' : 'top-2.5 left-2 w-7 h-7 text-[9.5px]'}
+                  className={`absolute z-20 flex items-center justify-center font-black rounded-full shadow border border-stone-900 bg-white text-stone-950 flex-shrink-0
+                    ${size === 'xs' ? 'top-1 left-1 px-1 py-0.2 text-[6px]' : size === 'sm' ? 'top-1.5 left-1 px-1.5 py-0.5 text-[7px]' : 'top-1.5 left-1.5 px-1.5 py-0.5 text-[8px]'}
                   `}
                 >
                   <span>₹{card.value}</span>
-                  <span className="text-[5px] sm:text-[5.5px] tracking-tighter text-stone-600 font-sans font-bold leading-none">Cr</span>
+                  <span className="text-[5px] text-stone-600 font-sans font-bold ml-0.5">Cr</span>
                 </div>
 
                 {/* Left Color Block with clearance for value badge */}
                 <div
                   style={{ backgroundColor: COLOR_METAS[card.colors[0]].colorHex }}
-                  className={`w-1/2 h-full flex items-center justify-center text-white font-black uppercase tracking-tighter border-r border-black/30 truncate
-                    ${size === 'xs' ? 'pl-6 pr-0.5 text-[6px]' : size === 'sm' ? 'pl-8 pr-1 text-[7.5px]' : 'pl-10 pr-1 text-[9px]'}
+                  className={`w-1/2 h-full flex items-center justify-center text-white font-black uppercase tracking-tight border-r border-black/30
+                    ${size === 'xs' ? 'pl-6 pr-0.5 text-[5.5px]' : size === 'sm' ? 'pl-8 pr-1 text-[7px]' : 'pl-9 pr-1 text-[8.5px]'}
                   `}
                   title={COLOR_METAS[card.colors[0]].name}
                 >
-                  <span className="truncate">{COLOR_METAS[card.colors[0]].name}</span>
+                  <span className="line-clamp-2 text-center leading-tight">{COLOR_METAS[card.colors[0]].name}</span>
                 </div>
 
                 {/* Right Color Block */}
                 <div
                   style={{ backgroundColor: COLOR_METAS[card.colors[1]].colorHex }}
-                  className={`w-1/2 h-full flex items-center justify-center text-white font-black uppercase tracking-tighter truncate
-                    ${size === 'xs' ? 'px-0.5 text-[6px]' : size === 'sm' ? 'px-1 text-[7.5px]' : 'px-1 text-[9px]'}
+                  className={`w-1/2 h-full flex items-center justify-center text-white font-black uppercase tracking-tight
+                    ${size === 'xs' ? 'px-0.5 text-[5.5px]' : size === 'sm' ? 'px-1 text-[7px]' : 'px-1 text-[8.5px]'}
                   `}
                   title={COLOR_METAS[card.colors[1]].name}
                 >
-                  <span className="truncate">{COLOR_METAS[card.colors[1]].name}</span>
+                  <span className="line-clamp-2 text-center leading-tight">{COLOR_METAS[card.colors[1]].name}</span>
                 </div>
               </div>
 
@@ -475,37 +483,31 @@ export const CardView: React.FC<CardViewProps> = ({
       )}
 
       {/* =========================================================================
-          3. MONEY CARDS - RESERVE BANK OF DEALBREAKER
+          3. MONEY CARDS - RESERVE BANK OF INDIA
           Instant recognition: Indian banknote styling, central denomination medallion
           ========================================================================= */}
       {card.type === 'money' && (() => {
         const m = getMoneyColor(card.value);
         return (
           <div className={`h-full flex flex-col justify-between p-1 sm:p-1.5 ${m.bg}`}>
-            <div className={`border-2 ${m.border} border-dashed rounded-lg h-full flex flex-col justify-between p-1 items-center bg-white/80 shadow-inner relative overflow-hidden`}>
-              {/* Note Header with Corner Badges */}
+            <div className={`border-2 ${m.border} border-dashed rounded-lg h-full flex flex-col justify-between p-1 items-center bg-white/85 shadow-inner relative overflow-hidden`}>
+              {/* Note Header: Left Value Pill & Bank Title */}
               <div className="flex items-center justify-between w-full border-b border-stone-300 pb-0.5">
                 <div
-                  className={`flex flex-col items-center justify-center font-black rounded-full shadow border border-stone-800 bg-white text-stone-950 font-mono flex-shrink-0
-                    ${size === 'xs' ? 'w-4 h-4 text-[6px]' : size === 'sm' ? 'w-5 h-5 text-[7px]' : 'w-6 h-6 text-[8px]'}
+                  className={`flex items-center justify-center font-black rounded-full shadow-xs border border-stone-800 bg-white text-stone-950 flex-shrink-0
+                    ${size === 'xs' ? 'px-1 py-0.2 text-[6px]' : size === 'sm' ? 'px-1.5 py-0.5 text-[7px]' : 'px-1.5 py-0.5 text-[8px]'}
                   `}
                 >
                   <span>₹{card.value}</span>
+                  <span className="text-[5px] text-stone-600 font-sans font-bold ml-0.5">Cr</span>
                 </div>
-                <div className="flex-1 text-center px-0.5">
-                  <div className="text-[4.5px] sm:text-[5.5px] font-black uppercase tracking-widest text-stone-700 leading-none truncate">
-                    RESERVE BANK OF DEALBREAKER
+                <div className="flex-1 text-right pl-1 min-w-0">
+                  <div className="text-[5px] sm:text-[6px] md:text-[6.5px] font-black uppercase tracking-wide text-stone-700 leading-none truncate">
+                    RESERVE BANK OF INDIA
                   </div>
-                  <div className="text-[4px] sm:text-[4.5px] font-bold text-stone-500 tracking-tight leading-none truncate">
-                    GUARANTEED BY CENTRAL BANK
+                  <div className="text-[4px] sm:text-[4.5px] md:text-[5px] font-bold text-stone-500 tracking-tight leading-none mt-0.5 truncate">
+                    GUARANTEED BY CENTRAL GOVT
                   </div>
-                </div>
-                <div
-                  className={`flex flex-col items-center justify-center font-black rounded-full shadow border border-stone-800 bg-white text-stone-950 font-mono flex-shrink-0
-                    ${size === 'xs' ? 'w-4 h-4 text-[6px]' : size === 'sm' ? 'w-5 h-5 text-[7px]' : 'w-6 h-6 text-[8px]'}
-                  `}
-                >
-                  <span>₹{card.value}</span>
                 </div>
               </div>
 
@@ -524,7 +526,7 @@ export const CardView: React.FC<CardViewProps> = ({
 
               {/* Note Footer */}
               <div className="w-full text-center pb-0.5 border-t border-stone-200 pt-0.5">
-                <span className={`text-[5px] sm:text-[6px] font-black uppercase px-1.5 py-0.2 rounded-full ${m.badge} shadow-xs inline-block`}>
+                <span className={`text-[5px] sm:text-[6px] font-black uppercase px-2 py-0.5 rounded-full ${m.badge} shadow-xs inline-block`}>
                   BANK CASH ONLY
                 </span>
               </div>
@@ -546,34 +548,35 @@ export const CardView: React.FC<CardViewProps> = ({
           <div className={`h-full flex flex-col justify-between ${a.bgTint}`}>
             {/* Top Action Header Banner */}
             <div
-              className={`${a.bannerBg} text-white flex items-center shadow border-b-2 border-stone-900 flex-shrink-0
-                ${size === 'xs' ? 'h-8 px-1 gap-1' : size === 'sm' ? 'h-10.5 px-1.5 gap-1.5' : 'h-13 px-2 gap-2'}
+              className={`${a.bannerBg} text-white flex flex-col justify-between shadow border-b-2 border-stone-900 flex-shrink-0
+                ${size === 'xs' ? 'h-[30px] p-0.5' : size === 'sm' ? 'h-[38px] p-1' : size === 'md' ? 'h-[46px] p-1' : 'h-[54px] p-1.5'}
               `}
             >
-              {/* Value Stamp */}
-              <div
-                className={`flex flex-col items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-stone-950 font-mono flex-shrink-0
-                  ${size === 'xs' ? 'w-5 h-5 text-[6.5px]' : size === 'sm' ? 'w-6 h-6 text-[8px]' : 'w-7 h-7 text-[9.5px]'}
-                `}
-              >
-                <span>₹{card.value}</span>
-                <span className="text-[5px] sm:text-[5.5px] tracking-tighter text-stone-600 font-sans font-bold leading-none">Cr</span>
-              </div>
+              {/* Top Row: Left Value Badge & Right "ACTION CARD" Pill */}
+              <div className="flex items-center justify-between w-full leading-none">
+                <div
+                  className={`flex items-center justify-center font-black rounded-full shadow-xs border border-stone-900 bg-white text-stone-950 flex-shrink-0
+                    ${size === 'xs' ? 'px-1 py-0.2 text-[6.5px]' : size === 'sm' ? 'px-1.5 py-0.5 text-[7.5px]' : 'px-1.5 py-0.5 text-[8.5px]'}
+                  `}
+                >
+                  <span>₹{card.value}</span>
+                  <span className="text-[5px] sm:text-[5.5px] text-stone-600 font-sans font-bold ml-0.5">Cr</span>
+                </div>
 
-              {/* Action Title Block */}
-              <div className="flex-1 min-w-0 flex flex-col justify-center text-center">
-                <div className={`font-black uppercase tracking-widest opacity-85 truncate leading-none
-                  ${size === 'xs' ? 'text-[5px]' : size === 'sm' ? 'text-[6px]' : 'text-[7px]'}
-                `}>
+                <div
+                  className={`font-black uppercase tracking-wider text-white/90 text-right drop-shadow-xs
+                    ${size === 'xs' ? 'text-[5px]' : size === 'sm' ? 'text-[6px]' : 'text-[7px]'}
+                  `}
+                >
                   ACTION CARD
                 </div>
+              </div>
+
+              {/* Bottom Row: Action Name centered across FULL width */}
+              <div className="w-full text-center flex items-center justify-center min-w-0">
                 <div
-                  className={`font-black uppercase tracking-tight drop-shadow leading-tight line-clamp-2
-                    ${
-                      a.title.length > 14
-                        ? size === 'xs' ? 'text-[6px]' : size === 'sm' ? 'text-[7.5px]' : 'text-[9px]'
-                        : size === 'xs' ? 'text-[7px]' : size === 'sm' ? 'text-[9px]' : 'text-[10px]'
-                    }
+                  className={`font-black uppercase tracking-tight leading-tight line-clamp-2 drop-shadow px-0.5 break-words
+                    ${size === 'xs' ? 'text-[7px]' : size === 'sm' ? 'text-[8.5px]' : 'text-[10px]'}
                   `}
                   title={a.title}
                 >
@@ -585,18 +588,18 @@ export const CardView: React.FC<CardViewProps> = ({
             {/* Central Graphic: Big Clear Icon & Instant Action Summary Badge */}
             <div className="flex-1 flex flex-col items-center justify-center p-1 text-center min-h-0">
               <div className="p-1 rounded-full bg-white shadow-md border border-stone-200 mb-0.5">
-                <ActionIcon className={`${size === 'xs' ? 'w-4 h-4' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8'} ${a.iconColor}`} />
+                <ActionIcon className={`${size === 'xs' ? 'w-4 h-4' : size === 'sm' ? 'w-6 h-6' : 'w-7 h-7'} ${a.iconColor}`} />
               </div>
 
               {/* High-visibility Action Effect Pill */}
-              <span className={`text-[6.5px] sm:text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full shadow-sm leading-tight ${a.badgeBg}`}>
+              <span className={`text-[6px] sm:text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full shadow-xs leading-tight ${a.badgeBg}`}>
                 {a.badgeText}
               </span>
             </div>
 
             {/* Rule Explainer footer */}
-            <div className="mx-1 mb-1 bg-white border border-stone-300 rounded p-0.5 text-center text-stone-700 shadow-inner">
-              <p className="text-[5.5px] sm:text-[6.5px] font-bold leading-tight line-clamp-2">
+            <div className="mx-1 mb-1 bg-white border border-stone-300 rounded px-1 py-0.5 text-center text-stone-800 shadow-inner min-h-[22px] flex items-center justify-center">
+              <p className="text-[5.5px] sm:text-[6.5px] font-semibold leading-tight break-words">
                 {card.description}
               </p>
             </div>
@@ -614,28 +617,35 @@ export const CardView: React.FC<CardViewProps> = ({
             /* Wild Rent */
             <>
               <div
-                className={`bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-700 text-white flex items-center shadow border-b-2 border-stone-900 flex-shrink-0
-                  ${size === 'xs' ? 'h-8 px-1 gap-1' : size === 'sm' ? 'h-10.5 px-1.5 gap-1.5' : 'h-13 px-2 gap-2'}
+                className={`bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-700 text-white flex flex-col justify-between shadow border-b-2 border-stone-900 flex-shrink-0
+                  ${size === 'xs' ? 'h-[30px] p-0.5' : size === 'sm' ? 'h-[38px] p-1' : size === 'md' ? 'h-[46px] p-1' : 'h-[54px] p-1.5'}
                 `}
               >
-                <div
-                  className={`flex flex-col items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-stone-950 font-mono flex-shrink-0
-                    ${size === 'xs' ? 'w-5 h-5 text-[6.5px]' : size === 'sm' ? 'w-6 h-6 text-[8px]' : 'w-7 h-7 text-[9.5px]'}
-                  `}
-                >
-                  <span>₹{card.value}</span>
-                  <span className="text-[5px] sm:text-[5.5px] tracking-tighter text-stone-600 font-sans font-bold leading-none">Cr</span>
-                </div>
+                <div className="flex items-center justify-between w-full leading-none">
+                  <div
+                    className={`flex items-center justify-center font-black rounded-full shadow-xs border border-stone-900 bg-white text-stone-950 flex-shrink-0
+                      ${size === 'xs' ? 'px-1 py-0.2 text-[6.5px]' : size === 'sm' ? 'px-1.5 py-0.5 text-[7.5px]' : 'px-1.5 py-0.5 text-[8.5px]'}
+                    `}
+                  >
+                    <span>₹{card.value}</span>
+                    <span className="text-[5px] sm:text-[5.5px] text-stone-600 font-sans font-bold ml-0.5">Cr</span>
+                  </div>
 
-                <div className="flex-1 min-w-0 flex flex-col justify-center text-center">
-                  <div className={`font-black uppercase tracking-widest opacity-85 truncate leading-none
-                    ${size === 'xs' ? 'text-[5px]' : size === 'sm' ? 'text-[6px]' : 'text-[7px]'}
-                  `}>
+                  <div
+                    className={`font-black uppercase tracking-wider text-white/90 text-right drop-shadow-xs
+                      ${size === 'xs' ? 'text-[5px]' : size === 'sm' ? 'text-[6px]' : 'text-[7px]'}
+                    `}
+                  >
                     RENT CARD
                   </div>
-                  <div className={`font-black uppercase tracking-wider leading-tight
-                    ${size === 'xs' ? 'text-[7px]' : size === 'sm' ? 'text-[9px]' : 'text-[10px]'}
-                  `}>
+                </div>
+
+                <div className="w-full text-center flex items-center justify-center min-w-0">
+                  <div
+                    className={`font-black uppercase tracking-tight leading-tight line-clamp-2 drop-shadow px-0.5
+                      ${size === 'xs' ? 'text-[7px]' : size === 'sm' ? 'text-[8.5px]' : 'text-[10px]'}
+                    `}
+                  >
                     WILD RENT
                   </div>
                 </div>
@@ -658,37 +668,39 @@ export const CardView: React.FC<CardViewProps> = ({
             <>
               <div
                 className={`flex border-b-2 border-stone-900 shadow relative items-center flex-shrink-0
-                  ${size === 'xs' ? 'h-8' : size === 'sm' ? 'h-10.5' : 'h-13'}
+                  ${size === 'xs' ? 'h-[28px]' : size === 'sm' ? 'h-[36px]' : size === 'md' ? 'h-[44px]' : 'h-[52px]'}
                 `}
               >
                 {/* Value Stamp */}
                 <div
-                  className={`absolute z-20 flex flex-col items-center justify-center font-black rounded-full shadow border-2 border-stone-900 bg-white text-stone-950 font-mono flex-shrink-0
-                    ${size === 'xs' ? 'top-1.5 left-1 w-5 h-5 text-[6.5px]' : size === 'sm' ? 'top-2 left-1.5 w-6 h-6 text-[8px]' : 'top-2.5 left-2 w-7 h-7 text-[9.5px]'}
+                  className={`absolute z-20 flex items-center justify-center font-black rounded-full shadow border border-stone-900 bg-white text-stone-950 flex-shrink-0
+                    ${size === 'xs' ? 'top-1 left-1 px-1 py-0.2 text-[6px]' : size === 'sm' ? 'top-1.5 left-1 px-1.5 py-0.5 text-[7px]' : 'top-1.5 left-1.5 px-1.5 py-0.5 text-[8px]'}
                   `}
                 >
                   <span>₹{card.value}</span>
-                  <span className="text-[5px] sm:text-[5.5px] tracking-tighter text-stone-600 font-sans font-bold leading-none">Cr</span>
+                  <span className="text-[5px] text-stone-600 font-sans font-bold ml-0.5">Cr</span>
                 </div>
 
                 {/* Left Color Block */}
                 <div
                   style={{ backgroundColor: COLOR_METAS[card.colors[0]].colorHex }}
-                  className={`w-1/2 h-full flex items-center justify-center text-white font-black uppercase tracking-tighter border-r border-black/30 truncate
-                    ${size === 'xs' ? 'pl-6 pr-0.5 text-[6px]' : size === 'sm' ? 'pl-8 pr-1 text-[7.5px]' : 'pl-10 pr-1 text-[9px]'}
+                  className={`w-1/2 h-full flex items-center justify-center text-white font-black uppercase tracking-tight border-r border-black/30
+                    ${size === 'xs' ? 'pl-6 pr-0.5 text-[5.5px]' : size === 'sm' ? 'pl-8 pr-1 text-[7px]' : 'pl-9 pr-1 text-[8.5px]'}
                   `}
+                  title={COLOR_METAS[card.colors[0]].name}
                 >
-                  <span className="truncate">{COLOR_METAS[card.colors[0]].name}</span>
+                  <span className="line-clamp-2 text-center leading-tight">{COLOR_METAS[card.colors[0]].name}</span>
                 </div>
 
                 {/* Right Color Block */}
                 <div
                   style={{ backgroundColor: COLOR_METAS[card.colors[1]].colorHex }}
-                  className={`w-1/2 h-full flex items-center justify-center text-white font-black uppercase tracking-tighter truncate
-                    ${size === 'xs' ? 'px-0.5 text-[6px]' : size === 'sm' ? 'px-1 text-[7.5px]' : 'px-1 text-[9px]'}
+                  className={`w-1/2 h-full flex items-center justify-center text-white font-black uppercase tracking-tight
+                    ${size === 'xs' ? 'px-0.5 text-[5.5px]' : size === 'sm' ? 'px-1 text-[7px]' : 'px-1 text-[8.5px]'}
                   `}
+                  title={COLOR_METAS[card.colors[1]].name}
                 >
-                  <span className="truncate">{COLOR_METAS[card.colors[1]].name}</span>
+                  <span className="line-clamp-2 text-center leading-tight">{COLOR_METAS[card.colors[1]].name}</span>
                 </div>
               </div>
 
@@ -706,8 +718,8 @@ export const CardView: React.FC<CardViewProps> = ({
             </>
           ) : null}
 
-          <div className="mx-1 mb-1 bg-white border border-stone-300 rounded p-0.5 text-center text-stone-700 shadow-inner">
-            <p className="text-[5.5px] sm:text-[6.5px] font-bold leading-tight line-clamp-2">
+          <div className="mx-1 mb-1 bg-white border border-stone-300 rounded px-1 py-0.5 text-center text-stone-800 shadow-inner min-h-[22px] flex items-center justify-center">
+            <p className="text-[5.5px] sm:text-[6.5px] font-semibold leading-tight break-words">
               {card.description}
             </p>
           </div>

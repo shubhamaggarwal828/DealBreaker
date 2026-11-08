@@ -215,35 +215,35 @@ export function createFullDeck(): Card[] {
       actionType: 'deal_breaker',
       value: 5,
       count: 2,
-      desc: 'Steal a complete property set from any player, including any House or Hotel!',
+      desc: 'Steal a full property set (with House/Hotel) from any player.',
     },
     {
       name: 'Just Say No',
       actionType: 'just_say_no',
       value: 4,
       count: 3,
-      desc: 'Cancel any action card played against you! Can be played at any time.',
+      desc: 'Cancel any action card played against you at any time.',
     },
     {
       name: 'Sly Deal',
       actionType: 'sly_deal',
       value: 3,
       count: 3,
-      desc: 'Steal any single property from another player (cannot be from a full set).',
+      desc: 'Steal 1 property from any player (cannot be from full set).',
     },
     {
       name: 'Forced Deal',
       actionType: 'forced_deal',
       value: 3,
       count: 3,
-      desc: 'Swap one of your properties for another player’s property (cannot be from a full set).',
+      desc: 'Swap 1 of your properties for an opponent’s property.',
     },
     {
       name: 'Debt Collector',
       actionType: 'debt_collector',
       value: 5,
       count: 3,
-      desc: 'Demand ₹5 Cr from any ONE player.',
+      desc: 'Demand ₹5 Cr debt from any ONE player.',
     },
     {
       name: "It's My Birthday",
@@ -264,21 +264,21 @@ export function createFullDeck(): Card[] {
       actionType: 'house',
       value: 3,
       count: 3,
-      desc: 'Add to any completed property set (except Railroads & Utilities) to increase rent by ₹3 Cr.',
+      desc: 'Add to full set for +₹3 Cr rent (not Rail/Util).',
     },
     {
       name: 'Hotel',
       actionType: 'hotel',
       value: 4,
       count: 2,
-      desc: 'Add to any completed property set with a House to increase rent by an additional ₹4 Cr.',
+      desc: 'Add to full set with House for +₹4 Cr rent.',
     },
     {
       name: 'Double The Rent',
       actionType: 'double_the_rent',
       value: 1,
       count: 2,
-      desc: 'Play together with a Rent card to double the rent owed!',
+      desc: 'Play with Rent card to double the rent owed!',
     },
   ];
 
@@ -312,7 +312,7 @@ export function createFullDeck(): Card[] {
         type: 'rent',
         value,
         colors,
-        description: `All players pay you rent for either ${COLOR_METAS[colors[0]].name} or ${COLOR_METAS[colors[1]].name} properties you own.`,
+        description: `Charge all players rent for either ${COLOR_METAS[colors[0]].name} or ${COLOR_METAS[colors[1]].name}.`,
       });
     }
   });
@@ -325,7 +325,7 @@ export function createFullDeck(): Card[] {
       type: 'rent',
       value: 3,
       isWildRent: true,
-      description: 'Force ONE player to pay you rent for ANY color property you own.',
+      description: 'Force 1 player to pay rent for ANY color property you own.',
     });
   }
 
